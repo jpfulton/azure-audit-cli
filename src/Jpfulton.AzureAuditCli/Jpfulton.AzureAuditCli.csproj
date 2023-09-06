@@ -8,11 +8,45 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>azure-audit</ToolCommandName>
+    <Title>Azure Audit CLI</Title>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageId>azure-audit-cli</PackageId>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+    <Version>0.0.0</Version>
+    <Authors>J. Patrick Fulton</Authors>
+    <Description>Command line tool for Azure resource security auditing</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/jpfulton/azure-audit-cli/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/jpfulton/azure-audit-cli/</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>azure;audit;cli</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="Spectre.Console" Version="0.47.0" />
     <PackageReference Include="Spectre.Console.Cli" Version="0.47.0" />
     <PackageReference Include="Spectre.Console.Json" Version="0.47.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="nupkg\**" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <EmbeddedResource Remove="nupkg\**" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Remove="nupkg\**" />
+      <None Include=".\README.md">
+          <Pack>True</Pack>
+          <PackagePath>\</PackagePath>
+      </None>
   </ItemGroup>
 
 </Project>
