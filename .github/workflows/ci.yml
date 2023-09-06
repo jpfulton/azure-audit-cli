@@ -22,7 +22,7 @@ jobs:
 
     # Execute this job upon pushes to the default branch or
     # PRs into the default branch that are not closed.
-    if: (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')) && (!endsWith(github.event.head_commit.message, '[skip-codeql]'))
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
 
     strategy:
       fail-fast: false
