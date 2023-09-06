@@ -33,15 +33,55 @@ public static class AzCommand
             using (var jsonDocument = JsonDocument.Parse(output))
             {
                 JsonElement root = jsonDocument.RootElement;
-                if (root.TryGetProperty("id", out JsonElement idElement))
+                return root.GetStringPropertyValue("id");
+            }
+        }
+    }
+
+    public static async Task<Subscription[]> GetSubscriptionsAsync()
+    {
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = "az",
+            Arguments = "account subscription list",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using (var process = new Process { StartInfo = startInfo })
+        {
+            process.Start();
+            string output = await process.StandardOutput.ReadToEndAsync();
+            await process.WaitForExitAsync();
+
+            if (process.ExitCode != 0)
+            {
+                string error = await process.StandardError.ReadToEndAsync();
+                throw new Exception($"Error executing 'az account subscription list': {error}");
+            }
+
+            var subscriptions = new List<Subscription>();
+
+            using (var jsonDocument = JsonDocument.Parse(output))
+            {
+                JsonElement root = jsonDocument.RootElement;
+                var arrayEnumerator = root.EnumerateArray();
+
+                foreach (var element in arrayEnumerator)
                 {
-                    string? subscriptionId = idElement.GetString();
-                    return subscriptionId;
+                    var subscription = new Subscription
+                    {
+                        Id = element.GetStringPropertyValue("subscriptionId"),
+                        DisplayName = element.GetStringPropertyValue("displayName"),
+                        State = element.GetStringPropertyValue("state")
+                    };
+
+                    subscriptions.Add(subscription);
                 }
-                else
-                {
-                    throw new Exception("Unable to find the 'id' property in the JSON output.");
-                }
+
+                return subscriptions.ToArray();
             }
         }
     }
@@ -79,15 +119,7 @@ public static class AzCommand
 
                 foreach (var element in arrayEnumerator)
                 {
-                    if (element.TryGetProperty("id", out JsonElement idElement))
-                    {
-                        string? resourceId = idElement.GetString();
-                        if (resourceId != null) idList.Add(resourceId);
-                    }
-                    else
-                    {
-                        throw new Exception("Unable to find the 'id' property in the JSON output.");
-                    }
+                    idList.Add(element.GetStringPropertyValue("id"));
                 }
             }
 
@@ -119,74 +151,52 @@ public static class AzCommand
                 throw new Exception($"Error executing 'az resource show': {error}");
             }
 
-            var resource = new Resource();
-
             using (var jsonDocument = JsonDocument.Parse(output))
             {
                 JsonElement root = jsonDocument.RootElement;
 
-                if (root.TryGetProperty("id", out JsonElement idElement))
+                var resource = new Resource
                 {
-                    string? id = idElement.GetString();
-                    resource.Id = id;
-                }
-                else
-                {
-                    throw new Exception("Unable to find the 'id' property in the JSON output.");
-                }
-
-                if (root.TryGetProperty("type", out JsonElement typeElement))
-                {
-                    string? value = typeElement.GetString();
-                    resource.ResourceType = value;
-                }
-                else
-                {
-                    throw new Exception("Unable to find the 'type' property in the JSON output.");
-                }
-
-                if (root.TryGetProperty("location", out JsonElement locationElement))
-                {
-                    string? value = locationElement.GetString();
-                    resource.PrimaryArmLocation = value;
-                }
-                else
-                {
-                    throw new Exception("Unable to find the 'location' property in the JSON output.");
-                }
-
-                if (root.TryGetProperty("name", out JsonElement nameElement))
-                {
-                    string? value = nameElement.GetString();
-                    resource.Name = value;
-                }
-                else
-                {
-                    throw new Exception("Unable to find the 'name' property in the JSON output.");
-                }
+                    Id = root.GetStringPropertyValue("id"),
+                    ResourceType = root.GetStringPropertyValue("type"),
+                    PrimaryArmLocation = root.GetStringPropertyValue("location"),
+                    Name = root.GetStringPropertyValue("name")
+                };
 
                 if (root.TryGetProperty("sku", out JsonElement skuElement))
                 {
                     if (skuElement.ValueKind != JsonValueKind.Null)
                     {
-                        if (skuElement.TryGetProperty("name", out JsonElement skuNameElement))
-                        {
-                            string? value = skuNameElement.GetString();
-                            resource.ArmSkuName = value;
-                        }
-                        else
-                        {
-                            throw new Exception("Unable to find the 'sku.name' element in the JSON output.");
-                        }
+                        resource.ArmSkuName = skuElement.GetStringPropertyValue("name");
                     }
                 }
                 else
                 {
                     throw new Exception("Unable to find the 'sku' element in the JSON output.");
                 }
-            }
 
-            return resource;
+                return resource;
+            }
+        }
+    }
+
+    private static string GetStringPropertyValue(this JsonElement element, string propertyName)
+    {
+        if (element.TryGetProperty(propertyName, out JsonElement childElement))
+        {
+            string? value = childElement.GetString();
+            if (value != null)
+            {
+                return value!;
+            }
+            else
+            {
+                throw new Exception($"Value of '${propertyName}' property is null.");
+            }
+        }
+        else
+        {
+            throw new Exception($"Unable to find the '${propertyName}' property in the JSON output.");
         }
     }
 }
