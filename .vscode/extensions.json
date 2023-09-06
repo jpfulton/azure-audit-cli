@@ -2,6 +2,7 @@
   "recommendations": [
     "ms-dotnettools.csharp",
     "github.vscode-github-actions",
-    "github.vscode-pull-request-github"
+    "github.vscode-pull-request-github",
+    "ms-dotnettools.csdevkit"
   ]
 }
