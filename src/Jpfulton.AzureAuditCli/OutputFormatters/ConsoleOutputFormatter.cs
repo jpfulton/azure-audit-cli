@@ -8,7 +8,7 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
 {
     public override Task WriteSubscriptions(SubscriptionsSettings settings, Subscription[] subscriptions)
     {
-        var tableTitle = "[blue]Accessible Azure Subscriptions[/]";
+        var tableTitle = "[bold blue]Accessible Azure Subscriptions[/]";
 
         var table = new Table
         {

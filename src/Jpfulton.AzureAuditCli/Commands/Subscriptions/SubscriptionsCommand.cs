@@ -10,7 +10,9 @@ public class SubscriptionsCommand : AsyncCommand<SubscriptionsSettings>
     public override async Task<int> ExecuteAsync(CommandContext context, SubscriptionsSettings settings)
     {
         if (settings.Debug)
-            AnsiConsole.WriteLine($"Version: {typeof(SubscriptionsCommand).Assembly.GetName().Version}");
+            AnsiConsole.Write(
+                new Markup($"[bold]Version:[/] {typeof(SubscriptionsCommand).Assembly.GetName().Version}\n")
+                );
 
         var subscriptions = await AzCommand.GetAzureSubscriptionsAsync();
 
