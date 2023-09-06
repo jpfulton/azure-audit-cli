@@ -122,8 +122,10 @@ jobs:
         with:
           dotnet-version: 7.0.x
 
-      - name: Build
-        run: dotnet build --configuration Release /p:Version=$TAG_NAME /p:AssemblyVersion=$TAG_NAME /p:FileVersion=$TAG_NAME
+      - name: Build and Pack
+        run: |
+          dotnet build --configuration Release /p:Version=$TAG_NAME /p:AssemblyVersion=$TAG_NAME /p:FileVersion=$TAG_NAME
+          dotnet pack --configuration Release /p:PackageVersion=$TAG_NAME /p:Version=$TAG_NAME /p:AssemblyVersion=$TAG_NAME /p:FileVersion=$TAG_NAME --output nupkgs
 
       - name: Archive Build Outputs
         run: |
@@ -137,4 +139,4 @@ jobs:
           tag: ${{ steps.tag_version.outputs.new_tag }}
           name: Release ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
-          artifacts: "./src/azure-audit-cli.tar.gz, ./src/azure-audit-cli.zip"
+          artifacts: "./src/azure-audit-cli.tar.gz, ./src/azure-audit-cli.zip, ./src/nupkgs/*.nupkg"
