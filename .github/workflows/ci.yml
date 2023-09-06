@@ -127,8 +127,8 @@ jobs:
 
       - name: Archive Build Outputs
         run: |
-          tar -czvf azure-audit-cli.tar.gz ./Jpfulton.AzureAuditCli/bin/Release/net7.0/*
-          zip azure-audit-cli.zip ./Jpfulton.AzureAuditCli/bin/Release/net7.0/*
+          tar -C ./Jpfulton.AzureAuditCli/bin/Release/net7.0 -czvf azure-audit-cli.tar.gz *
+          zip -j azure-audit-cli.zip ./Jpfulton.AzureAuditCli/bin/Release/net7.0/*
 
       - name: Create a GitHub release
         uses: ncipollo/release-action@v1
