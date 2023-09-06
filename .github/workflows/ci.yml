@@ -114,7 +114,7 @@ jobs:
 
       - name: Set TAG_NAME Environment Variable
         run: |
-          TAG_NAME="${{ steps.tag_version.outputs.new_tag }}"
+          TAG_NAME="${{ steps.tag_version.outputs.new_version }}"
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
 
       - name: Setup .NET
