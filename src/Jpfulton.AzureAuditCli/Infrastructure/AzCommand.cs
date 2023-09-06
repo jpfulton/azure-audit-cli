@@ -38,7 +38,7 @@ public static class AzCommand
         }
     }
 
-    public static async Task<Subscription[]> GetSubscriptionsAsync()
+    public static async Task<Subscription[]> GetAzureSubscriptionsAsync()
     {
         var startInfo = new ProcessStartInfo
         {
