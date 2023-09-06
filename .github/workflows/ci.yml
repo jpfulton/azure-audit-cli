@@ -22,7 +22,7 @@ jobs:
 
     # Execute this job upon pushes to the default branch or
     # PRs into the default branch that are not closed.
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    if: (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')) && (!endsWith(github.event.head_commit.message, '[skip-codeql]'))
 
     strategy:
       fail-fast: false
@@ -129,7 +129,7 @@ jobs:
 
       - name: Push NuGet Package
         run: |
-          dotnet nuget push nupkgs/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }}
+          dotnet nuget push ./nupkgs/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }}
 
       - name: Archive Build Outputs
         run: |
