@@ -15,7 +15,7 @@ public class ResourcesCommand : AsyncCommand<ResourcesSettings>
                 new Markup($"[bold]Version:[/] {typeof(ResourcesCommand).Assembly.GetName().Version}\n")
                 );
 
-        var subscriptionToResources = new Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>>();
+        var data = new Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>>();
 
         await AnsiConsole.Progress()
             .AutoRefresh(true) // Turn on auto refresh
@@ -35,12 +35,12 @@ public class ResourcesCommand : AsyncCommand<ResourcesSettings>
                 var rgTask = ctx.AddTask("[green]Getting resources[/]", new ProgressTaskSettings { AutoStart = false });
 
                 var subscriptions = await SubscriptionHelpers.GetSubscriptionsAsync(settings, subscriptionsTask);
-                await SubscriptionHelpers.GetResourceGroupsAsync(subscriptionToResources, rgTask, subscriptions);
+                await SubscriptionHelpers.GetResourceGroupsAsync(data, rgTask, subscriptions);
             }
         );
 
         await OutputFormattersCollection.Formatters[settings.Output]
-            .WriteResources(settings, subscriptionToResources);
+            .WriteResources(settings, data);
 
         return 0;
     }
