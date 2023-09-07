@@ -216,7 +216,7 @@ public static class AzCommand
                         Id = resourceId,
                         ResourceGroup = element.GetStringPropertyValue("resourceGroup"),
                         ResourceType = element.GetStringPropertyValue("type"),
-                        PrimaryArmLocation = element.GetStringPropertyValue("location"),
+                        Location = element.GetStringPropertyValue("location"),
                         Name = element.GetStringPropertyValue("name"),
 
                         // az list does not return a complete set of properties
@@ -227,7 +227,7 @@ public static class AzCommand
                     {
                         if (skuElement.ValueKind != JsonValueKind.Null)
                         {
-                            resource.ArmSkuName = skuElement.GetStringPropertyValue("name");
+                            resource.SkuName = skuElement.GetStringPropertyValue("name");
                         }
                     }
                     else
@@ -276,7 +276,7 @@ public static class AzCommand
                     Id = root.GetStringPropertyValue("id"),
                     ResourceGroup = root.GetStringPropertyValue("resourceGroup"),
                     ResourceType = root.GetStringPropertyValue("type"),
-                    PrimaryArmLocation = root.GetStringPropertyValue("location"),
+                    Location = root.GetStringPropertyValue("location"),
                     Name = root.GetStringPropertyValue("name"),
                     CompleteJsonBody = root.ToString()
                 };
@@ -285,7 +285,7 @@ public static class AzCommand
                 {
                     if (skuElement.ValueKind != JsonValueKind.Null)
                     {
-                        resource.ArmSkuName = skuElement.GetStringPropertyValue("name");
+                        resource.SkuName = skuElement.GetStringPropertyValue("name");
                     }
                 }
                 else
