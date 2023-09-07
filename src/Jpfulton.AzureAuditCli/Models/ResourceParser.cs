@@ -1,6 +1,4 @@
-using System.Collections.Immutable;
 using System.Text.Json;
-using System.Xml.Serialization;
 using Jpfulton.AzureAuditCli.Infrastructure;
 using Jpfulton.AzureAuditCli.Models.Networking;
 
