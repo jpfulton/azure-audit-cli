@@ -177,7 +177,7 @@ public static class AzCommand
         }
     }
 
-    public static async Task<Resource[]> GetAzureResourcesAsync(Guid subscriptionId, string resourceGroup)
+    public static async Task<Resource[]> GetAzureResourcesAsync(Guid subscriptionId, string resourceGroup, bool includeJsonBody = false)
     {
         var startInfo = new ProcessStartInfo
         {
@@ -219,7 +219,7 @@ public static class AzCommand
                         Name = element.GetStringPropertyValue("name"),
 
                         // az list does not return a complete set of properties
-                        CompleteJsonBody = await GetAzureResourceJsonByIdAsync(resourceId)
+                        CompleteJsonBody = includeJsonBody ? await GetAzureResourceJsonByIdAsync(resourceId) : string.Empty
                     };
 
                     if (element.TryGetProperty("sku", out JsonElement skuElement))

@@ -32,10 +32,10 @@ public class ResourcesCommand : AsyncCommand<ResourcesSettings>
             .StartAsync(async ctx =>
             {
                 var subscriptionsTask = ctx.AddTask("[green]Getting subscriptions[/]", new ProgressTaskSettings { AutoStart = false });
-                var rgTask = ctx.AddTask("[green]Getting resource groups[/]", new ProgressTaskSettings { AutoStart = false });
+                var rgTask = ctx.AddTask("[green]Getting resources[/]", new ProgressTaskSettings { AutoStart = false });
 
                 var subscriptions = await GetSubscriptions(settings, subscriptionsTask);
-                await GetResourceGroups(ctx, subscriptionToResources, rgTask, subscriptions);
+                await GetResourceGroups(subscriptionToResources, rgTask, subscriptions);
             }
         );
 
@@ -45,7 +45,7 @@ public class ResourcesCommand : AsyncCommand<ResourcesSettings>
         return 0;
     }
 
-    private static async Task GetResourceGroups(ProgressContext ctx, Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> subscriptionToResources, ProgressTask rgTask, List<Subscription> subscriptions)
+    private static async Task GetResourceGroups(Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> subscriptionToResources, ProgressTask rgTask, List<Subscription> subscriptions)
     {
         var subscriptionCount = subscriptions.Count;
         var subscriptionCounter = 0;
@@ -56,32 +56,28 @@ public class ResourcesCommand : AsyncCommand<ResourcesSettings>
         {
             var groups = await AzCommand.GetAzureResourceGroupsAsync(Guid.Parse(sub.SubscriptionId));
 
+            var groupToResourcesForSubscription = GetResources(sub, groups);
+            subscriptionToResources.Add(sub, groupToResourcesForSubscription);
+
             subscriptionCounter += 1;
             rgTask.Increment(rgProgressIncrement * subscriptionCounter);
-
-            var groupToResourcesForSubscription = await GetResources(ctx, sub, groups);
-            subscriptionToResources.Add(sub, groupToResourcesForSubscription);
         }
         rgTask.StopTask();
     }
 
-    private static async Task<Dictionary<ResourceGroup, List<Resource>>> GetResources(ProgressContext ctx, Subscription sub, ResourceGroup[] groups)
+    private static Dictionary<ResourceGroup, List<Resource>> GetResources(Subscription sub, ResourceGroup[] groups)
     {
         var groupToResourcesForSubscription = new Dictionary<ResourceGroup, List<Resource>>();
 
-        foreach (var group in groups)
+        var tasks = new Dictionary<ResourceGroup, Task<Resource[]>>();
+        groups.ToList().ForEach(rg =>
         {
-            var groupDisplayName = group.Name.Length > 15 ? $"{group.Name.Substring(0, 15)}..." : group.Name;
+            tasks.Add(rg, AzCommand.GetAzureResourcesAsync(Guid.Parse(sub.SubscriptionId), rg.Name));
+        });
 
-            var rTask = ctx.AddTask($"[green]Getting resources for {groupDisplayName}[/]", new ProgressTaskSettings { AutoStart = false });
-            rTask.StartTask();
+        Task.WaitAll(tasks.Values.ToArray());
 
-            var resources = await AzCommand.GetAzureResourcesAsync(Guid.Parse(sub.SubscriptionId), group.Name);
-            groupToResourcesForSubscription.Add(group, resources.ToList());
-
-            rTask.Increment(100.0);
-            rTask.StopTask();
-        }
+        tasks.Keys.ToList().ForEach(rg => groupToResourcesForSubscription.Add(rg, tasks[rg].Result.ToList()));
 
         return groupToResourcesForSubscription;
     }
