@@ -210,32 +210,7 @@ public static class AzCommand
 
                 foreach (var element in arrayEnumerator)
                 {
-                    var resourceId = element.GetStringPropertyValue("id");
-                    var resource = new Resource
-                    {
-                        Id = resourceId,
-                        ResourceGroup = element.GetStringPropertyValue("resourceGroup"),
-                        ResourceType = element.GetStringPropertyValue("type"),
-                        Location = element.GetStringPropertyValue("location"),
-                        Name = element.GetStringPropertyValue("name"),
-
-                        // az list does not return a complete set of properties
-                        CompleteJsonBody = includeJsonBody ? await GetAzureResourceJsonByIdAsync(resourceId) : string.Empty
-                    };
-
-                    if (element.TryGetProperty("sku", out JsonElement skuElement))
-                    {
-                        if (skuElement.ValueKind != JsonValueKind.Null)
-                        {
-                            resource.SkuName = skuElement.GetStringPropertyValue("name");
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception("Unable to find the 'sku' element in the JSON output.");
-                    }
-
-                    resources.Add(resource);
+                    resources.Add(await ResourceParser.ParseAsync(element, includeJsonBody));
                 }
             }
 
@@ -270,30 +245,7 @@ public static class AzCommand
             using (var jsonDocument = JsonDocument.Parse(output))
             {
                 JsonElement root = jsonDocument.RootElement;
-
-                var resource = new Resource
-                {
-                    Id = root.GetStringPropertyValue("id"),
-                    ResourceGroup = root.GetStringPropertyValue("resourceGroup"),
-                    ResourceType = root.GetStringPropertyValue("type"),
-                    Location = root.GetStringPropertyValue("location"),
-                    Name = root.GetStringPropertyValue("name"),
-                    CompleteJsonBody = root.ToString()
-                };
-
-                if (root.TryGetProperty("sku", out JsonElement skuElement))
-                {
-                    if (skuElement.ValueKind != JsonValueKind.Null)
-                    {
-                        resource.SkuName = skuElement.GetStringPropertyValue("name");
-                    }
-                }
-                else
-                {
-                    throw new Exception("Unable to find the 'sku' element in the JSON output.");
-                }
-
-                return resource;
+                return await ResourceParser.ParseAsync(root);
             }
         }
     }
@@ -323,26 +275,6 @@ public static class AzCommand
             }
 
             return output;
-        }
-    }
-
-    private static string GetStringPropertyValue(this JsonElement element, string propertyName)
-    {
-        if (element.TryGetProperty(propertyName, out JsonElement childElement))
-        {
-            string? value = childElement.GetString();
-            if (value != null)
-            {
-                return value!;
-            }
-            else
-            {
-                throw new Exception($"Value of '${propertyName}' property is null.");
-            }
-        }
-        else
-        {
-            throw new Exception($"Unable to find the '${propertyName}' property in the JSON output.");
         }
     }
 }
