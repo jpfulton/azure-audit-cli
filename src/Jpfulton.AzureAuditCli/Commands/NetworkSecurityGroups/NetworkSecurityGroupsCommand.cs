@@ -1,21 +1,19 @@
-using Jpfulton.AzureAuditCli.Infrastructure;
 using Jpfulton.AzureAuditCli.Models;
-using Jpfulton.AzureAuditCli.OutputFormatters;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
-namespace Jpfulton.AzureAuditCli.Commands.Resources;
+namespace Jpfulton.AzureAuditCli.Commands.NetworkSecurityGroups;
 
-public class ResourcesCommand : AsyncCommand<ResourcesSettings>
+public class NetworkSecurityGroupsCommand : AsyncCommand<NetworkSecurityGroupsSettings>
 {
-    public override async Task<int> ExecuteAsync(CommandContext context, ResourcesSettings settings)
+    public override async Task<int> ExecuteAsync(CommandContext context, NetworkSecurityGroupsSettings settings)
     {
         if (settings.Debug)
             AnsiConsole.Write(
-                new Markup($"[bold]Version:[/] {typeof(ResourcesCommand).Assembly.GetName().Version}\n")
+                new Markup($"[bold]Version:[/] {typeof(NetworkSecurityGroupsCommand).Assembly.GetName().Version}\n")
                 );
 
-        var subscriptionToResources = new Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>>();
+        var data = new Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>>();
 
         await AnsiConsole.Progress()
             .AutoRefresh(true) // Turn on auto refresh
@@ -35,12 +33,9 @@ public class ResourcesCommand : AsyncCommand<ResourcesSettings>
                 var rgTask = ctx.AddTask("[green]Getting resources[/]", new ProgressTaskSettings { AutoStart = false });
 
                 var subscriptions = await SubscriptionHelpers.GetSubscriptions(settings, subscriptionsTask);
-                await SubscriptionHelpers.GetResourceGroups(subscriptionToResources, rgTask, subscriptions);
+                await SubscriptionHelpers.GetResourceGroups(data, rgTask, subscriptions);
             }
         );
-
-        await OutputFormattersCollection.Formatters[settings.Output]
-            .WriteResources(settings, subscriptionToResources);
 
         return 0;
     }
