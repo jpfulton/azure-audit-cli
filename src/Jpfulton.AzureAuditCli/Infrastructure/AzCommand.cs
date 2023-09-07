@@ -214,6 +214,7 @@ public static class AzCommand
                     var resource = new Resource
                     {
                         Id = resourceId,
+                        ResourceGroup = element.GetStringPropertyValue("resourceGroup"),
                         ResourceType = element.GetStringPropertyValue("type"),
                         PrimaryArmLocation = element.GetStringPropertyValue("location"),
                         Name = element.GetStringPropertyValue("name"),
@@ -273,6 +274,7 @@ public static class AzCommand
                 var resource = new Resource
                 {
                     Id = root.GetStringPropertyValue("id"),
+                    ResourceGroup = root.GetStringPropertyValue("resourceGroup"),
                     ResourceType = root.GetStringPropertyValue("type"),
                     PrimaryArmLocation = root.GetStringPropertyValue("location"),
                     Name = root.GetStringPropertyValue("name"),
