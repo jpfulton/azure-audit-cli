@@ -1,6 +1,7 @@
 using Jpfulton.AzureAuditCli.Models;
 using System.Diagnostics;
 using System.Text.Json;
+using System.Linq;
 
 namespace Jpfulton.AzureAuditCli.Infrastructure;
 
@@ -34,6 +35,46 @@ public static class AzCommand
             {
                 JsonElement root = jsonDocument.RootElement;
                 return root.GetStringPropertyValue("id");
+            }
+        }
+    }
+
+    public static async Task<Subscription> GetAzureSubscriptionAsync(Guid id)
+    {
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = "az",
+            Arguments = $"account subscription show --id {id}",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using (var process = new Process { StartInfo = startInfo })
+        {
+            process.Start();
+            string output = await process.StandardOutput.ReadToEndAsync();
+            await process.WaitForExitAsync();
+
+            if (process.ExitCode != 0)
+            {
+                string error = await process.StandardError.ReadToEndAsync();
+                throw new Exception($"Error executing 'az account subscription show': {error}");
+            }
+
+            using (var jsonDocument = JsonDocument.Parse(output))
+            {
+                JsonElement root = jsonDocument.RootElement;
+
+                var subscription = new Subscription
+                {
+                    Id = root.GetStringPropertyValue("subscriptionId"),
+                    DisplayName = root.GetStringPropertyValue("displayName"),
+                    State = root.GetStringPropertyValue("state")
+                };
+
+                return subscription;
             }
         }
     }
@@ -86,12 +127,12 @@ public static class AzCommand
         }
     }
 
-    public static async Task<string[]> GetAzureResourceIdsAsync(string resourceGroup)
+    public static async Task<ResourceGroup[]> GetAzureResourceGroupsAsync(Guid subscriptionId)
     {
         var startInfo = new ProcessStartInfo
         {
             FileName = "az",
-            Arguments = $"resource list --resource-group {resourceGroup}",
+            Arguments = $"group list --subscription {subscriptionId}",
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
@@ -110,7 +151,55 @@ public static class AzCommand
                 throw new Exception($"Error executing 'az resource list': {error}");
             }
 
-            var idList = new List<string>();
+            var resourceGroups = new List<ResourceGroup>();
+
+            using (var jsonDocument = JsonDocument.Parse(output))
+            {
+                JsonElement root = jsonDocument.RootElement;
+                var arrayEnumerator = root.EnumerateArray();
+
+                resourceGroups.AddRange(
+                    arrayEnumerator.Select(element =>
+                    {
+                        return new ResourceGroup
+                        {
+                            Id = element.GetStringPropertyValue("id"),
+                            Location = element.GetStringPropertyValue("location"),
+                            Name = element.GetStringPropertyValue("name")
+                        };
+                    })
+                );
+
+                return resourceGroups.ToArray();
+            }
+        }
+    }
+
+    public static async Task<Resource[]> GetAzureResourcesAsync(Guid subscriptionId, string resourceGroup)
+    {
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = "az",
+            Arguments = $"resource list --subscription {subscriptionId} --resource-group {resourceGroup}",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using (var process = new Process { StartInfo = startInfo })
+        {
+            process.Start();
+            string output = await process.StandardOutput.ReadToEndAsync();
+            await process.WaitForExitAsync();
+
+            if (process.ExitCode != 0)
+            {
+                string error = await process.StandardError.ReadToEndAsync();
+                throw new Exception($"Error executing 'az resource list': {error}");
+            }
+
+            var resources = new List<Resource>();
 
             using (var jsonDocument = JsonDocument.Parse(output))
             {
@@ -119,11 +208,31 @@ public static class AzCommand
 
                 foreach (var element in arrayEnumerator)
                 {
-                    idList.Add(element.GetStringPropertyValue("id"));
+                    var resource = new Resource
+                    {
+                        Id = element.GetStringPropertyValue("id"),
+                        ResourceType = element.GetStringPropertyValue("type"),
+                        PrimaryArmLocation = element.GetStringPropertyValue("location"),
+                        Name = element.GetStringPropertyValue("name")
+                    };
+
+                    if (element.TryGetProperty("sku", out JsonElement skuElement))
+                    {
+                        if (skuElement.ValueKind != JsonValueKind.Null)
+                        {
+                            resource.ArmSkuName = skuElement.GetStringPropertyValue("name");
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("Unable to find the 'sku' element in the JSON output.");
+                    }
+
+                    resources.Add(resource);
                 }
             }
 
-            return idList.ToArray();
+            return resources.ToArray();
         }
     }
 
