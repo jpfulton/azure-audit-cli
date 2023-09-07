@@ -9,6 +9,7 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
 {
     public override Task WriteResources(ResourcesSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> data)
     {
+        /*
         var tableTitle = "[bold blue]Accessible Azure Subscriptions[/]";
 
         var table = new Table
@@ -21,37 +22,32 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
         table
             .AddColumn("")
             .AddColumn("");
+        */
+
+        var tree = new Tree("Subscriptions");
 
         foreach (var sub in data.Keys)
         {
+            var subTree = new Tree($"{sub.DisplayName} ({sub.Id})");
             var resourceGroupResource = data[sub];
 
-            var rgTable = new Table();
-            rgTable.AddColumn("").AddColumn("");
 
             foreach (var rg in resourceGroupResource.Keys)
             {
-                var rTable = new Table();
-                rTable.AddColumns(
-                    new TableColumn("Name"),
-                    new TableColumn("Type")
-                );
+                var rgTree = new Tree(rg.Name);
 
                 foreach (var resource in resourceGroupResource[rg])
                 {
-                    rTable.AddRow(
-                        resource.Name,
-                        resource.ResourceType
-                    );
+                    rgTree.AddNode($"{resource.Name} ({resource.ResourceType})");
                 }
 
-                rgTable.AddRow(new Markup(rg.Name), rTable);
+                subTree.AddNode(rgTree);
             }
 
-            table.AddRow(new Markup(sub.DisplayName), rgTable);
+            tree.AddNode(subTree);
         }
 
-        AnsiConsole.Write(table);
+        AnsiConsole.Write(tree);
 
         return Task.CompletedTask;
     }
