@@ -31,6 +31,17 @@ public static class ResourceParser
             throw new Exception("Unable to find the 'sku' element in the JSON output.");
         }
 
+        if (element.TryGetProperty("tags", out JsonElement tagsElement))
+        {
+            if (tagsElement.ValueKind != JsonValueKind.Null)
+            {
+                foreach (var property in tagsElement.EnumerateObject())
+                {
+                    resource.Tags.Add(property.Name, property.Value.GetString()!);
+                }
+            }
+        }
+
         return resource;
     }
 }
