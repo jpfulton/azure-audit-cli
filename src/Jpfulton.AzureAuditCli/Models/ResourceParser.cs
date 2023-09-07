@@ -12,6 +12,15 @@ public static class ResourceParser
         {"Microsoft.Network/networkSecurityGroups/securityRules", typeof(SecurityRule)}
     };
 
+    public static ResourceRef ParseRef(JsonElement element)
+    {
+        return new ResourceRef
+        {
+            Id = element.GetStringPropertyValue("id"),
+            ResourceGroup = element.GetStringPropertyValue("resourceGroup")
+        };
+    }
+
     public static async Task<Resource> ParseAsync(JsonElement element, bool queryForCompleteJson = false)
     {
         var resourceId = element.GetStringPropertyValue("id");
@@ -82,13 +91,23 @@ public static class ResourceParser
 
         if (
             element.TryGetProperty("properties", out JsonElement propsElement) &&
-            propsElement.ValueKind != JsonValueKind.Null &&
-            propsElement.TryGetProperty("securityRules", out JsonElement securityRulesElement)
+            propsElement.ValueKind != JsonValueKind.Null
             )
         {
-            foreach (var ruleElement in securityRulesElement.EnumerateArray())
+            if (propsElement.TryGetProperty("networkInterfaces", out JsonElement nicsElement))
             {
-                nsg.SecurityRules.Add((SecurityRule)await ParseAsync(ruleElement));
+                foreach (var nicElement in nicsElement.EnumerateArray())
+                {
+                    nsg.NetworkInterfaces.Add(ParseRef(nicElement));
+                }
+            }
+
+            if (propsElement.TryGetProperty("securityRules", out JsonElement securityRulesElement))
+            {
+                foreach (var ruleElement in securityRulesElement.EnumerateArray())
+                {
+                    nsg.SecurityRules.Add((SecurityRule)await ParseAsync(ruleElement));
+                }
             }
         }
 
