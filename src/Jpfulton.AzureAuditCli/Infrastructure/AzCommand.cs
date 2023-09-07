@@ -1,6 +1,7 @@
 using Jpfulton.AzureAuditCli.Models;
 using System.Diagnostics;
 using System.Text.Json;
+using System.Linq;
 
 namespace Jpfulton.AzureAuditCli.Infrastructure;
 
@@ -157,17 +158,17 @@ public static class AzCommand
                 JsonElement root = jsonDocument.RootElement;
                 var arrayEnumerator = root.EnumerateArray();
 
-                foreach (var element in arrayEnumerator)
-                {
-                    var group = new ResourceGroup
+                resourceGroups.AddRange(
+                    arrayEnumerator.Select(element =>
                     {
-                        Id = element.GetStringPropertyValue("id"),
-                        Location = element.GetStringPropertyValue("location"),
-                        Name = element.GetStringPropertyValue("name")
-                    };
-
-                    resourceGroups.Add(group);
-                }
+                        return new ResourceGroup
+                        {
+                            Id = element.GetStringPropertyValue("id"),
+                            Location = element.GetStringPropertyValue("location"),
+                            Name = element.GetStringPropertyValue("name")
+                        };
+                    })
+                );
 
                 return resourceGroups.ToArray();
             }
