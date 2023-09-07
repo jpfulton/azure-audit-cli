@@ -16,7 +16,6 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
             var subTree = new Tree($"[blue]{sub.DisplayName} ({sub.Id})[/]");
             var resourceGroupResource = data[sub];
 
-
             foreach (var rg in resourceGroupResource.Keys)
             {
                 var rgTree = new Tree($"[green]{rg.Name}[/]");
