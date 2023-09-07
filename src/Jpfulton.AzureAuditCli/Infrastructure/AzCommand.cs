@@ -110,17 +110,17 @@ public static class AzCommand
                 JsonElement root = jsonDocument.RootElement;
                 var arrayEnumerator = root.EnumerateArray();
 
-                foreach (var element in arrayEnumerator)
-                {
-                    var subscription = new Subscription
+                subscriptions.AddRange(
+                    arrayEnumerator.Select(element =>
                     {
-                        Id = element.GetStringPropertyValue("subscriptionId"),
-                        DisplayName = element.GetStringPropertyValue("displayName"),
-                        State = element.GetStringPropertyValue("state")
-                    };
-
-                    subscriptions.Add(subscription);
-                }
+                        return new Subscription
+                        {
+                            Id = element.GetStringPropertyValue("subscriptionId"),
+                            DisplayName = element.GetStringPropertyValue("displayName"),
+                            State = element.GetStringPropertyValue("state")
+                        };
+                    })
+                );
 
                 return subscriptions.ToArray();
             }
