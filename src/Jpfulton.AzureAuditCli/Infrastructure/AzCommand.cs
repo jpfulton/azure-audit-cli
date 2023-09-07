@@ -69,7 +69,8 @@ public static class AzCommand
 
                 var subscription = new Subscription
                 {
-                    Id = root.GetStringPropertyValue("subscriptionId"),
+                    Id = root.GetStringPropertyValue("id"),
+                    SubscriptionId = root.GetStringPropertyValue("subscriptionId"),
                     DisplayName = root.GetStringPropertyValue("displayName"),
                     State = root.GetStringPropertyValue("state")
                 };
@@ -110,19 +111,20 @@ public static class AzCommand
                 JsonElement root = jsonDocument.RootElement;
                 var arrayEnumerator = root.EnumerateArray();
 
-                foreach (var element in arrayEnumerator)
-                {
-                    var subscription = new Subscription
+                subscriptions.AddRange(
+                    arrayEnumerator.Select(element =>
                     {
-                        Id = element.GetStringPropertyValue("subscriptionId"),
-                        DisplayName = element.GetStringPropertyValue("displayName"),
-                        State = element.GetStringPropertyValue("state")
-                    };
+                        return new Subscription
+                        {
+                            Id = element.GetStringPropertyValue("id"),
+                            SubscriptionId = element.GetStringPropertyValue("subscriptionId"),
+                            DisplayName = element.GetStringPropertyValue("displayName"),
+                            State = element.GetStringPropertyValue("state")
+                        };
+                    })
+                );
 
-                    subscriptions.Add(subscription);
-                }
-
-                return subscriptions.ToArray();
+                return subscriptions.OrderBy(s => s.DisplayName).ToArray();
             }
         }
     }
@@ -170,7 +172,7 @@ public static class AzCommand
                     })
                 );
 
-                return resourceGroups.ToArray();
+                return resourceGroups.OrderBy(g => g.Name).ToArray();
             }
         }
     }
@@ -208,12 +210,16 @@ public static class AzCommand
 
                 foreach (var element in arrayEnumerator)
                 {
+                    var resourceId = element.GetStringPropertyValue("id");
                     var resource = new Resource
                     {
-                        Id = element.GetStringPropertyValue("id"),
+                        Id = resourceId,
                         ResourceType = element.GetStringPropertyValue("type"),
                         PrimaryArmLocation = element.GetStringPropertyValue("location"),
-                        Name = element.GetStringPropertyValue("name")
+                        Name = element.GetStringPropertyValue("name"),
+
+                        // az list does not return a complete set of properties
+                        CompleteJsonBody = await GetAzureResourceJsonByIdAsync(resourceId)
                     };
 
                     if (element.TryGetProperty("sku", out JsonElement skuElement))
@@ -232,7 +238,7 @@ public static class AzCommand
                 }
             }
 
-            return resources.ToArray();
+            return resources.OrderBy(r => r.ResourceType).ThenBy(r => r.Name).ToArray();
         }
     }
 
@@ -269,7 +275,8 @@ public static class AzCommand
                     Id = root.GetStringPropertyValue("id"),
                     ResourceType = root.GetStringPropertyValue("type"),
                     PrimaryArmLocation = root.GetStringPropertyValue("location"),
-                    Name = root.GetStringPropertyValue("name")
+                    Name = root.GetStringPropertyValue("name"),
+                    CompleteJsonBody = root.ToString()
                 };
 
                 if (root.TryGetProperty("sku", out JsonElement skuElement))
@@ -286,6 +293,34 @@ public static class AzCommand
 
                 return resource;
             }
+        }
+    }
+
+    public static async Task<string> GetAzureResourceJsonByIdAsync(string resourceId)
+    {
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = "az",
+            Arguments = $"resource show --ids \"{resourceId}\"",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using (var process = new Process { StartInfo = startInfo })
+        {
+            process.Start();
+            string output = await process.StandardOutput.ReadToEndAsync();
+            await process.WaitForExitAsync();
+
+            if (process.ExitCode != 0)
+            {
+                string error = await process.StandardError.ReadToEndAsync();
+                throw new Exception($"Error executing 'az resource show': {error}");
+            }
+
+            return output;
         }
     }
 

@@ -54,7 +54,7 @@ public class ResourcesCommand : AsyncCommand<ResourcesSettings>
         rgTask.StartTask();
         foreach (var sub in subscriptions)
         {
-            var groups = await AzCommand.GetAzureResourceGroupsAsync(Guid.Parse(sub.Id));
+            var groups = await AzCommand.GetAzureResourceGroupsAsync(Guid.Parse(sub.SubscriptionId));
 
             subscriptionCounter += 1;
             rgTask.Increment(rgProgressIncrement * subscriptionCounter);
@@ -76,7 +76,7 @@ public class ResourcesCommand : AsyncCommand<ResourcesSettings>
             var rTask = ctx.AddTask($"[green]Getting resources for {groupDisplayName}[/]", new ProgressTaskSettings { AutoStart = false });
             rTask.StartTask();
 
-            var resources = await AzCommand.GetAzureResourcesAsync(Guid.Parse(sub.Id), group.Name);
+            var resources = await AzCommand.GetAzureResourcesAsync(Guid.Parse(sub.SubscriptionId), group.Name);
             groupToResourcesForSubscription.Add(group, resources.ToList());
 
             rTask.Increment(100.0);
