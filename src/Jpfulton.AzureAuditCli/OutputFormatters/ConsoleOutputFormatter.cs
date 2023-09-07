@@ -13,16 +13,18 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
 
         foreach (var sub in data.Keys)
         {
-            var subTree = new Tree($"[blue]{sub.DisplayName} ({sub.Id})[/]");
+            var subTree = new Tree($"[bold blue]{sub.DisplayName} ({sub.Id})[/]");
             var resourceGroupResource = data[sub];
 
             foreach (var rg in resourceGroupResource.Keys)
             {
-                var rgTree = new Tree($"[green]{rg.Name}[/]");
+                var rgTree = new Tree(
+                    $"[bold green]{rg.Name} ({rg.Location}) -> [[{resourceGroupResource[rg].Count} resource(s)]][/]"
+                );
 
                 foreach (var resource in resourceGroupResource[rg])
                 {
-                    rgTree.AddNode($"({resource.ResourceType}) {resource.Name}");
+                    rgTree.AddNode($"[bold]({resource.ResourceType})[/] {resource.Name}");
                 }
 
                 subTree.AddNode(rgTree);
