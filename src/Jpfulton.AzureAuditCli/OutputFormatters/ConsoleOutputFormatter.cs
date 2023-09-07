@@ -20,15 +20,13 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
             var subTree = new Tree($"[bold blue]{sub.DisplayName} ({sub.SubscriptionId})[/]");
             var resourceGroupResource = data[sub];
 
-            foreach (var rg in resourceGroupResource.Keys)
+            foreach (var pair in resourceGroupResource.Where(p => p.Value.Count > 0))
             {
-                if (resourceGroupResource[rg].Count == 0) continue;
-
                 var rgTree = new Tree(
-                    $"[bold green]{rg.Name} ({rg.Location}) -> [[{resourceGroupResource[rg].Count} resource(s)]][/]"
+                    $"[bold green]{pair.Key.Name} ({pair.Key.Location}) -> [[{pair.Value.Count} resource(s)]][/]"
                 );
 
-                foreach (var resource in resourceGroupResource[rg])
+                foreach (var resource in pair.Value)
                 {
                     rgTree.AddNode($"[bold]({resource.ResourceType})[/] {resource.Name}");
                 }

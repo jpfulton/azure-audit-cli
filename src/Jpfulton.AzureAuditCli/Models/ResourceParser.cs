@@ -38,14 +38,14 @@ public static class ResourceParser
             throw new Exception("Unable to find the 'sku' element in the JSON output.");
         }
 
-        if (element.TryGetProperty("tags", out JsonElement tagsElement))
+        if (
+            element.TryGetProperty("tags", out JsonElement tagsElement) &&
+            tagsElement.ValueKind != JsonValueKind.Null
+            )
         {
-            if (tagsElement.ValueKind != JsonValueKind.Null)
+            foreach (var property in tagsElement.EnumerateObject())
             {
-                foreach (var property in tagsElement.EnumerateObject())
-                {
-                    resource.Tags.Add(property.Name, property.Value.GetString()!);
-                }
+                resource.Tags.Add(property.Name, property.Value.GetString()!);
             }
         }
 
@@ -54,9 +54,8 @@ public static class ResourceParser
 
     private static Resource CreateResource(string resourceType)
     {
-        if (typeMap.ContainsKey(resourceType))
+        if (typeMap.TryGetValue(resourceType, out Type? type))
         {
-            var type = typeMap[resourceType];
             return (Resource)Activator.CreateInstance(type)!;
         }
         else
@@ -86,18 +85,15 @@ public static class ResourceParser
     {
         var nsg = resource as NetworkSecurityGroup ?? throw new ArgumentException("Resource is not of correct Type.", "resource");
 
-        if (element.TryGetProperty("properties", out JsonElement propsElement))
+        if (
+            element.TryGetProperty("properties", out JsonElement propsElement) &&
+            propsElement.ValueKind != JsonValueKind.Null &&
+            propsElement.TryGetProperty("securityRules", out JsonElement securityRulesElement)
+            )
         {
-            if (propsElement.ValueKind != JsonValueKind.Null)
+            foreach (var ruleElement in securityRulesElement.EnumerateArray())
             {
-                if (propsElement.TryGetProperty("securityRules", out JsonElement securityRulesElement))
-                {
-                    var rulesArray = securityRulesElement.EnumerateArray();
-                    foreach (var ruleElement in rulesArray)
-                    {
-                        nsg.SecurityRules.Add((SecurityRule)await ParseAsync(ruleElement));
-                    }
-                }
+                nsg.SecurityRules.Add((SecurityRule)await ParseAsync(ruleElement));
             }
         }
 
@@ -108,19 +104,19 @@ public static class ResourceParser
     {
         var rule = resource as SecurityRule ?? throw new ArgumentException("Resource is not of correct Type.", "resource");
 
-        if (element.TryGetProperty("properties", out JsonElement propsElement))
+        if (
+            element.TryGetProperty("properties", out JsonElement propsElement) &&
+            propsElement.ValueKind != JsonValueKind.Null
+            )
         {
-            if (propsElement.ValueKind != JsonValueKind.Null)
-            {
-                rule.Access = Enum.Parse<Access>(propsElement.GetStringPropertyValue("access"));
-                rule.DestinationAddressPrefix = propsElement.GetStringPropertyValue("destinationAddressPrefix");
-                rule.DestinationPortRange = propsElement.GetStringPropertyValue("destinationPortRange");
-                rule.Direction = Enum.Parse<Direction>(propsElement.GetStringPropertyValue("direction"));
-                rule.Priority = int.Parse(propsElement.GetStringPropertyValue("priority"));
-                rule.Protocol = Enum.Parse<Protocol>(propsElement.GetStringPropertyValue("protocol"));
-                rule.SourceAddressPrefix = propsElement.GetStringPropertyValue("sourceAddressPrefix");
-                rule.SourcePortRange = propsElement.GetStringPropertyValue("sourcePortRange");
-            }
+            rule.Access = Enum.Parse<Access>(propsElement.GetStringPropertyValue("access"));
+            rule.DestinationAddressPrefix = propsElement.GetStringPropertyValue("destinationAddressPrefix");
+            rule.DestinationPortRange = propsElement.GetStringPropertyValue("destinationPortRange");
+            rule.Direction = Enum.Parse<Direction>(propsElement.GetStringPropertyValue("direction"));
+            rule.Priority = int.Parse(propsElement.GetStringPropertyValue("priority"));
+            rule.Protocol = Enum.Parse<Protocol>(propsElement.GetStringPropertyValue("protocol"));
+            rule.SourceAddressPrefix = propsElement.GetStringPropertyValue("sourceAddressPrefix");
+            rule.SourcePortRange = propsElement.GetStringPropertyValue("sourcePortRange");
         }
 
         return rule;
