@@ -54,14 +54,9 @@ public static class ResourceParser
 
     private static Resource CreateResource(string resourceType)
     {
-        if (typeMap.TryGetValue(resourceType, out Type? type))
-        {
-            return (Resource)Activator.CreateInstance(type)!;
-        }
-        else
-        {
-            return new Resource();
-        }
+        return typeMap.TryGetValue(resourceType, out Type? type) ?
+            (Resource)Activator.CreateInstance(type)! :
+            new Resource();
     }
 
     private static async Task<Resource> ParseRemainingProperties(this Resource resource, JsonElement element)
