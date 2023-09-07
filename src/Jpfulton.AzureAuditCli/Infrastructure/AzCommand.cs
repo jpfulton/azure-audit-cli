@@ -124,7 +124,7 @@ public static class AzCommand
                     })
                 );
 
-                return subscriptions.ToArray();
+                return subscriptions.OrderBy(s => s.DisplayName).ToArray();
             }
         }
     }
@@ -172,7 +172,7 @@ public static class AzCommand
                     })
                 );
 
-                return resourceGroups.ToArray();
+                return resourceGroups.OrderBy(g => g.Name).ToArray();
             }
         }
     }
@@ -234,7 +234,7 @@ public static class AzCommand
                 }
             }
 
-            return resources.ToArray();
+            return resources.OrderBy(r => r.ResourceType).ThenBy(r => r.Name).ToArray();
         }
     }
 
