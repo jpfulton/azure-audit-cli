@@ -177,12 +177,23 @@ public static class AzCommand
         }
     }
 
-    public static async Task<Resource[]> GetAzureResourcesAsync(Guid subscriptionId, string resourceGroup, bool includeJsonBody = false)
+    public static async Task<Resource[]> GetAzureResourcesAsync(
+        Guid subscriptionId,
+        string resourceGroup,
+        bool includeJsonBody = false,
+        string? jmesQuery = null
+        )
     {
+        var args = $"resource list --subscription {subscriptionId} --resource-group {resourceGroup}";
+        if (!string.IsNullOrEmpty(jmesQuery))
+        {
+            args += $" --query \"{jmesQuery}\"";
+        }
+
         var startInfo = new ProcessStartInfo
         {
             FileName = "az",
-            Arguments = $"resource list --subscription {subscriptionId} --resource-group {resourceGroup}",
+            Arguments = args,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,

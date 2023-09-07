@@ -30,7 +30,8 @@ public static class SubscriptionHelpers
     public static async Task GetResourceGroupsAsync(
         Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> subscriptionToResources,
         ProgressTask rgTask,
-        List<Subscription> subscriptions
+        List<Subscription> subscriptions,
+        string? jmesQuery = null
         )
     {
         var subscriptionCount = subscriptions.Count;
@@ -42,7 +43,7 @@ public static class SubscriptionHelpers
         {
             var groups = await AzCommand.GetAzureResourceGroupsAsync(Guid.Parse(sub.SubscriptionId));
 
-            var groupToResourcesForSubscription = await GetResourcesAsync(sub, groups);
+            var groupToResourcesForSubscription = await GetResourcesAsync(sub, groups, jmesQuery);
             subscriptionToResources.Add(sub, groupToResourcesForSubscription);
 
             subscriptionCounter += 1;
@@ -53,7 +54,8 @@ public static class SubscriptionHelpers
 
     public static async Task<Dictionary<ResourceGroup, List<Resource>>> GetResourcesAsync(
         Subscription sub,
-        ResourceGroup[] groups
+        ResourceGroup[] groups,
+        string? jmesQuery = null
         )
     {
         var groupToResourcesForSubscription = new Dictionary<ResourceGroup, List<Resource>>();
@@ -61,7 +63,7 @@ public static class SubscriptionHelpers
         var tasks = new Dictionary<ResourceGroup, Task<Resource[]>>();
         groups.ToList().ForEach(rg =>
         {
-            tasks.Add(rg, AzCommand.GetAzureResourcesAsync(Guid.Parse(sub.SubscriptionId), rg.Name));
+            tasks.Add(rg, AzCommand.GetAzureResourcesAsync(Guid.Parse(sub.SubscriptionId), rg.Name, jmesQuery: jmesQuery));
         });
 
         await Task.WhenAll(tasks.Values.ToArray());

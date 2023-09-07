@@ -1,3 +1,4 @@
+using Jpfulton.AzureAuditCli.Commands.NetworkSecurityGroups;
 using Jpfulton.AzureAuditCli.Commands.Resources;
 using Jpfulton.AzureAuditCli.Commands.Subscriptions;
 using Jpfulton.AzureAuditCli.Models;
@@ -7,7 +8,46 @@ namespace Jpfulton.AzureAuditCli.OutputFormatters;
 
 public class ConsoleOutputFormatter : BaseOutputFormatter
 {
-    public override Task WriteResources(ResourcesSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> data)
+    public override Task WriteNetworkSecurityGroups(
+        NetworkSecurityGroupsSettings settings,
+        Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> data
+        )
+    {
+        var tree = new Tree("[bold]Subscriptions[/]");
+
+        foreach (var sub in data.Keys)
+        {
+            var subTree = new Tree($"[bold blue]{sub.DisplayName} ({sub.SubscriptionId})[/]");
+            var resourceGroupResource = data[sub];
+
+            foreach (var rg in resourceGroupResource.Keys)
+            {
+                if (resourceGroupResource[rg].Count == 0) continue;
+
+                var rgTree = new Tree(
+                    $"[bold green]{rg.Name} ({rg.Location}) -> [[{resourceGroupResource[rg].Count} resource(s)]][/]"
+                );
+
+                foreach (var resource in resourceGroupResource[rg])
+                {
+                    rgTree.AddNode($"[bold]({resource.ResourceType})[/] {resource.Name}");
+                }
+
+                subTree.AddNode(rgTree);
+            }
+
+            tree.AddNode(subTree);
+        }
+
+        AnsiConsole.Write(tree);
+
+        return Task.CompletedTask;
+    }
+
+    public override Task WriteResources(
+        ResourcesSettings settings,
+        Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> data
+        )
     {
         var tree = new Tree("[bold]Subscriptions[/]");
 
@@ -38,7 +78,10 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
         return Task.CompletedTask;
     }
 
-    public override Task WriteSubscriptions(SubscriptionsSettings settings, Subscription[] subscriptions)
+    public override Task WriteSubscriptions(
+        SubscriptionsSettings settings,
+        Subscription[] subscriptions
+        )
     {
         var tableTitle = "[bold blue]Accessible Azure Subscriptions[/]";
 

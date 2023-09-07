@@ -1,4 +1,5 @@
 using Jpfulton.AzureAuditCli.Models;
+using Jpfulton.AzureAuditCli.OutputFormatters;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -6,13 +7,17 @@ namespace Jpfulton.AzureAuditCli.Commands.NetworkSecurityGroups;
 
 public class NetworkSecurityGroupsCommand : AsyncCommand<NetworkSecurityGroupsSettings>
 {
-    public override async Task<int> ExecuteAsync(CommandContext context, NetworkSecurityGroupsSettings settings)
+    public override async Task<int> ExecuteAsync(
+        CommandContext context,
+        NetworkSecurityGroupsSettings settings
+        )
     {
         if (settings.Debug)
             AnsiConsole.Write(
                 new Markup($"[bold]Version:[/] {typeof(NetworkSecurityGroupsCommand).Assembly.GetName().Version}\n")
                 );
 
+        var jmesQuery = "[?type == `Microsoft.Network/networkSecurityGroups`]";
         var data = new Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>>();
 
         await AnsiConsole.Progress()
@@ -33,9 +38,12 @@ public class NetworkSecurityGroupsCommand : AsyncCommand<NetworkSecurityGroupsSe
                 var rgTask = ctx.AddTask("[green]Getting resources[/]", new ProgressTaskSettings { AutoStart = false });
 
                 var subscriptions = await SubscriptionHelpers.GetSubscriptionsAsync(settings, subscriptionsTask);
-                await SubscriptionHelpers.GetResourceGroupsAsync(data, rgTask, subscriptions);
+                await SubscriptionHelpers.GetResourceGroupsAsync(data, rgTask, subscriptions, jmesQuery);
             }
         );
+
+        await OutputFormattersCollection.Formatters[settings.Output]
+            .WriteNetworkSecurityGroups(settings, data);
 
         return 0;
     }
