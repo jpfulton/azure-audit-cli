@@ -6,7 +6,10 @@ namespace Jpfulton.AzureAuditCli.Commands;
 
 public static class SubscriptionHelpers
 {
-    public static async Task<List<Subscription>> GetSubscriptions(ResourceSettings settings, ProgressTask subscriptionsTask)
+    public static async Task<List<Subscription>> GetSubscriptionsAsync(
+        ResourceSettings settings,
+        ProgressTask subscriptionsTask
+        )
     {
         var subscriptions = new List<Subscription>();
 
@@ -24,7 +27,11 @@ public static class SubscriptionHelpers
         return subscriptions;
     }
 
-    public static async Task GetResourceGroups(Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> subscriptionToResources, ProgressTask rgTask, List<Subscription> subscriptions)
+    public static async Task GetResourceGroupsAsync(
+        Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> subscriptionToResources,
+        ProgressTask rgTask,
+        List<Subscription> subscriptions
+        )
     {
         var subscriptionCount = subscriptions.Count;
         var subscriptionCounter = 0;
@@ -44,7 +51,10 @@ public static class SubscriptionHelpers
         rgTask.StopTask();
     }
 
-    public static async Task<Dictionary<ResourceGroup, List<Resource>>> GetResourcesAsync(Subscription sub, ResourceGroup[] groups)
+    public static async Task<Dictionary<ResourceGroup, List<Resource>>> GetResourcesAsync(
+        Subscription sub,
+        ResourceGroup[] groups
+        )
     {
         var groupToResourcesForSubscription = new Dictionary<ResourceGroup, List<Resource>>();
 

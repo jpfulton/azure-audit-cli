@@ -32,8 +32,8 @@ public class NetworkSecurityGroupsCommand : AsyncCommand<NetworkSecurityGroupsSe
                 var subscriptionsTask = ctx.AddTask("[green]Getting subscriptions[/]", new ProgressTaskSettings { AutoStart = false });
                 var rgTask = ctx.AddTask("[green]Getting resources[/]", new ProgressTaskSettings { AutoStart = false });
 
-                var subscriptions = await SubscriptionHelpers.GetSubscriptions(settings, subscriptionsTask);
-                await SubscriptionHelpers.GetResourceGroups(data, rgTask, subscriptions);
+                var subscriptions = await SubscriptionHelpers.GetSubscriptionsAsync(settings, subscriptionsTask);
+                await SubscriptionHelpers.GetResourceGroupsAsync(data, rgTask, subscriptions);
             }
         );
 
