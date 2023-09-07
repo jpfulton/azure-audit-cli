@@ -69,7 +69,7 @@ public static class AzCommand
 
                 var subscription = new Subscription
                 {
-                    Id = root.GetStringPropertyValue("subscriptionId"),
+                    SubscriptionId = root.GetStringPropertyValue("subscriptionId"),
                     DisplayName = root.GetStringPropertyValue("displayName"),
                     State = root.GetStringPropertyValue("state")
                 };
@@ -115,7 +115,7 @@ public static class AzCommand
                     {
                         return new Subscription
                         {
-                            Id = element.GetStringPropertyValue("subscriptionId"),
+                            SubscriptionId = element.GetStringPropertyValue("subscriptionId"),
                             DisplayName = element.GetStringPropertyValue("displayName"),
                             State = element.GetStringPropertyValue("state")
                         };

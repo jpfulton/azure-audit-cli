@@ -13,7 +13,7 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
 
         foreach (var sub in data.Keys)
         {
-            var subTree = new Tree($"[bold blue]{sub.DisplayName} ({sub.Id})[/]");
+            var subTree = new Tree($"[bold blue]{sub.DisplayName} ({sub.SubscriptionId})[/]");
             var resourceGroupResource = data[sub];
 
             foreach (var rg in resourceGroupResource.Keys)
@@ -58,7 +58,7 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
         foreach (var subscription in subscriptions)
         {
             table.AddRow(
-                new Markup(subscription.Id),
+                new Markup(subscription.SubscriptionId),
                 new Markup(subscription.DisplayName),
                 new Markup(subscription.State)
             );
