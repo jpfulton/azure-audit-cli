@@ -9,36 +9,21 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
 {
     public override Task WriteResources(ResourcesSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> data)
     {
-        /*
-        var tableTitle = "[bold blue]Accessible Azure Subscriptions[/]";
-
-        var table = new Table
-        {
-            Border = TableBorder.Rounded,
-            Title = new TableTitle(tableTitle)
-        };
-        table.Expand();
-
-        table
-            .AddColumn("")
-            .AddColumn("");
-        */
-
-        var tree = new Tree("Subscriptions");
+        var tree = new Tree("[bold]Subscriptions[/]");
 
         foreach (var sub in data.Keys)
         {
-            var subTree = new Tree($"{sub.DisplayName} ({sub.Id})");
+            var subTree = new Tree($"[blue]{sub.DisplayName} ({sub.Id})[/]");
             var resourceGroupResource = data[sub];
 
 
             foreach (var rg in resourceGroupResource.Keys)
             {
-                var rgTree = new Tree(rg.Name);
+                var rgTree = new Tree($"[green]{rg.Name}[/]");
 
                 foreach (var resource in resourceGroupResource[rg])
                 {
-                    rgTree.AddNode($"{resource.Name} ({resource.ResourceType})");
+                    rgTree.AddNode($"({resource.ResourceType}) {resource.Name}");
                 }
 
                 subTree.AddNode(rgTree);
