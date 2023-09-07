@@ -7,4 +7,5 @@ public class Resource
   public string Name { get; set; } = string.Empty;
   public string PrimaryArmLocation { get; set; } = string.Empty;
   public string ArmSkuName { get; set; } = string.Empty;
+  public string CompleteJsonBody { get; set; } = string.Empty;
 }

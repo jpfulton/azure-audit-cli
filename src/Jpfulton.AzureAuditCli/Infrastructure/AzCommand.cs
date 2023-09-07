@@ -210,12 +210,16 @@ public static class AzCommand
 
                 foreach (var element in arrayEnumerator)
                 {
+                    var resourceId = element.GetStringPropertyValue("id");
                     var resource = new Resource
                     {
-                        Id = element.GetStringPropertyValue("id"),
+                        Id = resourceId,
                         ResourceType = element.GetStringPropertyValue("type"),
                         PrimaryArmLocation = element.GetStringPropertyValue("location"),
-                        Name = element.GetStringPropertyValue("name")
+                        Name = element.GetStringPropertyValue("name"),
+
+                        // az list does not return a complete set of properties
+                        CompleteJsonBody = await GetAzureResourceJsonByIdAsync(resourceId)
                     };
 
                     if (element.TryGetProperty("sku", out JsonElement skuElement))
@@ -271,7 +275,8 @@ public static class AzCommand
                     Id = root.GetStringPropertyValue("id"),
                     ResourceType = root.GetStringPropertyValue("type"),
                     PrimaryArmLocation = root.GetStringPropertyValue("location"),
-                    Name = root.GetStringPropertyValue("name")
+                    Name = root.GetStringPropertyValue("name"),
+                    CompleteJsonBody = root.ToString()
                 };
 
                 if (root.TryGetProperty("sku", out JsonElement skuElement))
@@ -288,6 +293,34 @@ public static class AzCommand
 
                 return resource;
             }
+        }
+    }
+
+    public static async Task<string> GetAzureResourceJsonByIdAsync(string resourceId)
+    {
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = "az",
+            Arguments = $"resource show --ids \"{resourceId}\"",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using (var process = new Process { StartInfo = startInfo })
+        {
+            process.Start();
+            string output = await process.StandardOutput.ReadToEndAsync();
+            await process.WaitForExitAsync();
+
+            if (process.ExitCode != 0)
+            {
+                string error = await process.StandardError.ReadToEndAsync();
+                throw new Exception($"Error executing 'az resource show': {error}");
+            }
+
+            return output;
         }
     }
 
