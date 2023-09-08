@@ -1,4 +1,4 @@
-﻿using Jpfulton.AzureAuditCli.Commands.NetworkSecurityGroups;
+﻿using Jpfulton.AzureAuditCli.Commands.Networking.NetworkSecurityGroups;
 using Jpfulton.AzureAuditCli.Commands.Resources;
 using Jpfulton.AzureAuditCli.Commands.Subscriptions;
 using Jpfulton.AzureAuditCli.Infrastructure;

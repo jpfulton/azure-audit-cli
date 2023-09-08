@@ -5,7 +5,7 @@ using Jpfulton.AzureAuditCli.Rules;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
-namespace Jpfulton.AzureAuditCli.Commands.NetworkSecurityGroups;
+namespace Jpfulton.AzureAuditCli.Commands.Networking.NetworkSecurityGroups;
 
 public class NetworkSecurityGroupsCommand : AsyncCommand<NetworkSecurityGroupsSettings>
 {
