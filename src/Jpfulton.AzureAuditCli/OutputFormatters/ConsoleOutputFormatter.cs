@@ -1,13 +1,62 @@
+using Jpfulton.AzureAuditCli.Commands.NetworkSecurityGroups;
 using Jpfulton.AzureAuditCli.Commands.Resources;
 using Jpfulton.AzureAuditCli.Commands.Subscriptions;
 using Jpfulton.AzureAuditCli.Models;
+using Jpfulton.AzureAuditCli.Models.Networking;
+using Jpfulton.AzureAuditCli.Rules;
 using Spectre.Console;
 
 namespace Jpfulton.AzureAuditCli.OutputFormatters;
 
 public class ConsoleOutputFormatter : BaseOutputFormatter
 {
-    public override Task WriteResources(ResourcesSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> data)
+    public override Task WriteNetworkSecurityGroups(
+        NetworkSecurityGroupsSettings settings,
+        Dictionary<
+            Subscription, Dictionary<
+                ResourceGroup, Dictionary<
+                    Resource, List<IRuleOutput<NetworkSecurityGroup>>
+                >
+            >
+        > data
+    )
+    {
+        var tree = new Tree("[bold]Subscriptions[/]");
+
+        foreach (var sub in data.Keys)
+        {
+            var subTree = new Tree($"[bold blue]{sub.DisplayName} ({sub.SubscriptionId})[/]");
+            var resourceGroupResource = data[sub];
+
+            foreach (var pair in resourceGroupResource.Where(p => p.Value.Count > 0))
+            {
+                var rgTree = new Tree(
+                    $"[bold green]{pair.Key.Name} ({pair.Key.Location}) -> [[{pair.Value.Count} resource(s)]][/]"
+                );
+
+                foreach (var resource in pair.Value.Keys)
+                {
+                    var rTree = new Tree($"[bold]({resource.ResourceType})[/] {resource.Name}");
+                    pair.Value[resource].ToList().ForEach(o => rTree.AddNode(o.GetMarkup()));
+
+                    rgTree.AddNode(rTree);
+                }
+
+                subTree.AddNode(rgTree);
+            }
+
+            tree.AddNode(subTree);
+        }
+
+        AnsiConsole.Write(tree);
+
+        return Task.CompletedTask;
+    }
+
+    public override Task WriteResources(
+        ResourcesSettings settings,
+        Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> data
+        )
     {
         var tree = new Tree("[bold]Subscriptions[/]");
 
@@ -38,7 +87,10 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
         return Task.CompletedTask;
     }
 
-    public override Task WriteSubscriptions(SubscriptionsSettings settings, Subscription[] subscriptions)
+    public override Task WriteSubscriptions(
+        SubscriptionsSettings settings,
+        Subscription[] subscriptions
+        )
     {
         var tableTitle = "[bold blue]Accessible Azure Subscriptions[/]";
 
