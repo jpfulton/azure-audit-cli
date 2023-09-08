@@ -25,6 +25,19 @@ public class OpenInboundPortsRule : IRule<NetworkSecurityGroup>
     {
         var outputs = new List<IRuleOutput<NetworkSecurityGroup>>();
 
+        outputs.AddRange(EvaluateOpenAndUnfiltered(resource));
+        outputs.AddRange(EvaluateOpenAndFiltered(resource));
+        outputs.AddRange(EvaluateUnattachedToNic(resource));
+
+        return outputs;
+    }
+
+    private static IEnumerable<IRuleOutput<NetworkSecurityGroup>> EvaluateOpenAndUnfiltered(
+        NetworkSecurityGroup resource
+        )
+    {
+        var outputs = new List<IRuleOutput<NetworkSecurityGroup>>();
+
         resource.SecurityRules
             .Where(r =>
                 r.Access == Access.Allow &&
@@ -51,6 +64,56 @@ public class OpenInboundPortsRule : IRule<NetworkSecurityGroup>
                     resource
                 ));
             });
+
+        return outputs;
+    }
+
+    private static IEnumerable<IRuleOutput<NetworkSecurityGroup>> EvaluateOpenAndFiltered(
+        NetworkSecurityGroup resource
+        )
+    {
+        var outputs = new List<IRuleOutput<NetworkSecurityGroup>>();
+
+        resource.SecurityRules
+            .Where(r =>
+                r.Access == Access.Allow &&
+                r.Direction == Direction.Inbound &&
+                !r.SourceAddressPrefix.Equals("*")
+            )
+            .ToList()
+            .ForEach(rule =>
+            {
+                var level = Level.Info;
+                var protocol = Enum.GetName(rule.Protocol);
+                var message = $"Open and filtered {protocol} port(s): {rule.DestinationPortRange} found.";
+
+                outputs.Add(new DefaultRuleOutput<NetworkSecurityGroup>(
+                    level,
+                    message,
+                    resource
+                ));
+            });
+
+        return outputs;
+    }
+
+    private static IEnumerable<IRuleOutput<NetworkSecurityGroup>> EvaluateUnattachedToNic(
+        NetworkSecurityGroup resource
+        )
+    {
+        var outputs = new List<IRuleOutput<NetworkSecurityGroup>>();
+
+        if (resource.NetworkInterfaces.Count == 0)
+        {
+            var level = Level.Info;
+            var message = $"No network interfaces are attached.";
+
+            outputs.Add(new DefaultRuleOutput<NetworkSecurityGroup>(
+                level,
+                message,
+                resource
+            ));
+        }
 
         return outputs;
     }
