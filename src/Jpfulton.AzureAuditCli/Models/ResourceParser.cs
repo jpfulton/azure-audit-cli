@@ -6,18 +6,20 @@ namespace Jpfulton.AzureAuditCli.Models;
 
 public static class ResourceParser
 {
-    private static readonly Dictionary<string, Type> typeMap = new Dictionary<string, Type>
+    private static readonly Dictionary<string, Type> typeMap = new()
     {
-        {"Microsoft.Network/networkSecurityGroups", typeof(NetworkSecurityGroup) },
-        {"Microsoft.Network/networkSecurityGroups/securityRules", typeof(SecurityRule)}
+        {AzureResourceType.IpConfiguration, typeof(IpConfiguration)},
+        {AzureResourceType.NetworkInterfaceCard, typeof(NetworkInterfaceCard)},
+        {AzureResourceType.NetworkSecurityGroup, typeof(NetworkSecurityGroup)},
+        {AzureResourceType.SecurityRule, typeof(SecurityRule)}
     };
 
-    public static ResourceRef ParseRef(JsonElement element)
+    public static ResourceRef? ParseRef(JsonElement? element)
     {
-        return new ResourceRef
+        return !element.HasValue ? null : new ResourceRef
         {
-            Id = element.GetStringPropertyValue("id"),
-            ResourceGroup = element.GetStringPropertyValue("resourceGroup")
+            Id = element.Value.GetStringPropertyValue("id"),
+            ResourceGroup = element.Value.GetStringPropertyValue("resourceGroup")
         };
     }
 
@@ -64,16 +66,25 @@ public static class ResourceParser
             new Resource();
     }
 
-    private static async Task<Resource> ParseRemainingProperties(this Resource resource, JsonElement element)
+    private static async Task<Resource> ParseRemainingProperties(
+        this Resource resource,
+        JsonElement element
+        )
     {
         var resourceType = resource.ResourceType;
 
         switch (resourceType)
         {
-            case "Microsoft.Network/networkSecurityGroups":
-                return await ParseNetworkSecurityGroup(resource, element);
+            case AzureResourceType.IpConfiguration:
+                return ParseIpConfiguration(resource, element);
 
-            case "Microsoft.Network/networkSecurityGroups/securityRules":
+            case AzureResourceType.NetworkInterfaceCard:
+                return await ParseNetworkInterfaceCardAsync(resource, element);
+
+            case AzureResourceType.NetworkSecurityGroup:
+                return await ParseNetworkSecurityGroupAsync(resource, element);
+
+            case AzureResourceType.SecurityRule:
                 return ParseSecurityRule(resource, element);
 
             default:
@@ -81,7 +92,10 @@ public static class ResourceParser
         }
     }
 
-    private static async Task<NetworkSecurityGroup> ParseNetworkSecurityGroup(Resource resource, JsonElement element)
+    private static async Task<NetworkSecurityGroup> ParseNetworkSecurityGroupAsync(
+        Resource resource,
+        JsonElement element
+        )
     {
         var nsg = resource as NetworkSecurityGroup ?? throw new ArgumentException("Resource is not of correct Type.", "resource");
 
@@ -94,7 +108,7 @@ public static class ResourceParser
             {
                 foreach (var nicElement in nicsElement.EnumerateArray())
                 {
-                    nsg.NetworkInterfaces.Add(ParseRef(nicElement));
+                    nsg.NetworkInterfaces.Add(ParseRef(nicElement)!);
                 }
             }
 
@@ -130,5 +144,53 @@ public static class ResourceParser
         }
 
         return rule;
+    }
+
+    private static async Task<NetworkInterfaceCard> ParseNetworkInterfaceCardAsync(
+        Resource resource,
+        JsonElement element
+        )
+    {
+        var card = resource as NetworkInterfaceCard ?? throw new ArgumentException("Resource is not of correct Type.", "resource");
+
+        if (
+            element.TryGetProperty("properties", out JsonElement propsElement) &&
+            propsElement.ValueKind != JsonValueKind.Null
+            )
+        {
+            card.EnableAcceleratedNetworking = propsElement.GetBooleanPropertyValue("enableAcceleratedNetworking", false) ?? false;
+            card.Primary = propsElement.GetBooleanPropertyValue("primary") ?? false;
+            card.NetworkSecurityGroup = ParseRef(propsElement.GetChildElement("networkSecurityGroup"));
+            card.VirtualMachine = ParseRef(propsElement.GetChildElement("virtualMachine"));
+            card.VnetEncryptionSupported = propsElement.GetBooleanPropertyValue("vnetEncryptionSupported") ?? false;
+
+            if (propsElement.TryGetProperty("ipConfigurations", out JsonElement configsElement))
+            {
+                foreach (var configElement in configsElement.EnumerateArray())
+                {
+                    card.IpConfigurations.Add((IpConfiguration)await ParseAsync(configElement));
+                }
+            }
+        }
+
+        return card;
+    }
+
+    private static IpConfiguration ParseIpConfiguration(Resource resource, JsonElement element)
+    {
+        var config = resource as IpConfiguration ?? throw new ArgumentException("Resource is not of correct Type.", "resource");
+
+        if (
+            element.TryGetProperty("properties", out JsonElement propsElement) &&
+            propsElement.ValueKind != JsonValueKind.Null
+            )
+        {
+            config.Primary = propsElement.GetBooleanPropertyValue("primary") ?? false;
+            config.PrivateIpAddress = propsElement.GetStringPropertyValue("privateIPAddress");
+            config.PublicIpAddress = ParseRef(propsElement.GetChildElement("publicIPAddress"));
+            config.Subnet = ParseRef(propsElement.GetChildElement("subnet"));
+        }
+
+        return config;
     }
 }

@@ -5,21 +5,21 @@ using Jpfulton.AzureAuditCli.Rules;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
-namespace Jpfulton.AzureAuditCli.Commands.NetworkSecurityGroups;
+namespace Jpfulton.AzureAuditCli.Commands.Networking.NetworkInterfaceCards;
 
-public class NetworkSecurityGroupsCommand : AsyncCommand<NetworkSecurityGroupsSettings>
+public class NetworkInterfaceCardsCommand : AsyncCommand<NetworkInterfaceCardsSettings>
 {
     public override async Task<int> ExecuteAsync(
         CommandContext context,
-        NetworkSecurityGroupsSettings settings
+        NetworkInterfaceCardsSettings settings
         )
     {
         if (settings.Debug)
             AnsiConsole.Write(
-                new Markup($"[bold]Version:[/] {typeof(NetworkSecurityGroupsCommand).Assembly.GetName().Version}\n")
+                new Markup($"[bold]Version:[/] {typeof(NetworkInterfaceCardsCommand).Assembly.GetName().Version}\n")
                 );
 
-        var jmesQuery = "[?type == `Microsoft.Network/networkSecurityGroups`]";
+        var jmesQuery = $"[?type == `{AzureResourceType.NetworkInterfaceCard}`]";
         var data = new Dictionary<
             Subscription, Dictionary<ResourceGroup, List<Resource>>
         >();
@@ -49,7 +49,7 @@ public class NetworkSecurityGroupsCommand : AsyncCommand<NetworkSecurityGroupsSe
         var outputData = new Dictionary<
             Subscription, Dictionary<
                 ResourceGroup, Dictionary<
-                    Resource, List<IRuleOutput<NetworkSecurityGroup>>
+                    Resource, List<IRuleOutput<NetworkInterfaceCard>>
                 >
             >
         >();
@@ -58,19 +58,19 @@ public class NetworkSecurityGroupsCommand : AsyncCommand<NetworkSecurityGroupsSe
         {
             var rgToResources = new Dictionary<
                 ResourceGroup, Dictionary<
-                    Resource, List<IRuleOutput<NetworkSecurityGroup>>
+                    Resource, List<IRuleOutput<NetworkInterfaceCard>>
                 >
             >();
 
             data[sub].Keys.ToList().ForEach(rg =>
             {
                 var resourceToRuleOutputs = new Dictionary<
-                    Resource, List<IRuleOutput<NetworkSecurityGroup>>
+                    Resource, List<IRuleOutput<NetworkInterfaceCard>>
                     >();
 
                 data[sub][rg].ForEach(r =>
                 {
-                    var ruleOutputs = RuleEvaluator<NetworkSecurityGroup>.Evaluate((NetworkSecurityGroup)r);
+                    var ruleOutputs = RuleEvaluator<NetworkInterfaceCard>.Evaluate(r);
                     resourceToRuleOutputs.Add(r, ruleOutputs.ToList());
                 });
 
@@ -81,7 +81,7 @@ public class NetworkSecurityGroupsCommand : AsyncCommand<NetworkSecurityGroupsSe
         });
 
         await OutputFormattersCollection.Formatters[settings.Output]
-            .WriteNetworkSecurityGroups(settings, outputData);
+            .WriteNetworkInterfaceCards(settings, outputData);
 
         return 0;
     }
