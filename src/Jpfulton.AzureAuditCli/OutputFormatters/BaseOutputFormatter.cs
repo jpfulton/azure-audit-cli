@@ -1,3 +1,4 @@
+using Jpfulton.AzureAuditCli.Commands.Networking.NetworkInterfaceCards;
 using Jpfulton.AzureAuditCli.Commands.Networking.NetworkSecurityGroups;
 using Jpfulton.AzureAuditCli.Commands.Resources;
 using Jpfulton.AzureAuditCli.Commands.Subscriptions;
@@ -9,6 +10,16 @@ namespace Jpfulton.AzureAuditCli.OutputFormatters;
 
 public abstract class BaseOutputFormatter
 {
+    public abstract Task WriteNetworkInterfaceCards(
+        NetworkInterfaceCardsSettings settings,
+        Dictionary<
+            Subscription, Dictionary<
+                ResourceGroup, Dictionary<
+                    Resource, List<IRuleOutput<NetworkInterfaceCard>>
+                >
+            >
+        > data
+        );
     public abstract Task WriteNetworkSecurityGroups(
         NetworkSecurityGroupsSettings settings,
         Dictionary<
