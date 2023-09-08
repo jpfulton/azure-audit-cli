@@ -160,6 +160,7 @@ public static class ResourceParser
         {
             card.EnableAcceleratedNetworking = propsElement.GetBooleanPropertyValue("enableAcceleratedNetworking", false) ?? false;
             card.Primary = propsElement.GetBooleanPropertyValue("primary") ?? false;
+            card.NetworkSecurityGroup = ParseRef(propsElement.GetChildElement("networkSecurityGroup"));
             card.VirtualMachine = ParseRef(propsElement.GetChildElement("virtualMachine"));
             card.VnetEncryptionSupported = propsElement.GetBooleanPropertyValue("vnetEncryptionSupported") ?? false;
 
@@ -186,7 +187,6 @@ public static class ResourceParser
         {
             config.Primary = propsElement.GetBooleanPropertyValue("primary") ?? false;
             config.PrivateIpAddress = propsElement.GetStringPropertyValue("privateIPAddress");
-            config.NetworkSecurityGroup = ParseRef(propsElement.GetChildElement("networkSecurityGroup"));
             config.PublicIpAddress = ParseRef(propsElement.GetChildElement("publicIPAddress"));
             config.Subnet = ParseRef(propsElement.GetChildElement("subnet"));
         }

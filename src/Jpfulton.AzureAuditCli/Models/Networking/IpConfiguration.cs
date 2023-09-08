@@ -6,5 +6,4 @@ public class IpConfiguration : Resource
     public string PrivateIpAddress { get; set; } = string.Empty;
     public ResourceRef? PublicIpAddress { get; set; }
     public ResourceRef? Subnet { get; set; }
-    public ResourceRef? NetworkSecurityGroup { get; set; }
 }
