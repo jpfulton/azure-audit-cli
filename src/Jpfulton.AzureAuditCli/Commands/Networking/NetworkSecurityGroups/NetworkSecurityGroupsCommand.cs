@@ -19,7 +19,7 @@ public class NetworkSecurityGroupsCommand : AsyncCommand<NetworkSecurityGroupsSe
                 new Markup($"[bold]Version:[/] {typeof(NetworkSecurityGroupsCommand).Assembly.GetName().Version}\n")
                 );
 
-        var jmesQuery = "[?type == `Microsoft.Network/networkSecurityGroups`]";
+        var jmesQuery = $"[?type == `{AzureResourceType.NetworkSecurityGroup}`]";
         var data = new Dictionary<
             Subscription, Dictionary<ResourceGroup, List<Resource>>
         >();

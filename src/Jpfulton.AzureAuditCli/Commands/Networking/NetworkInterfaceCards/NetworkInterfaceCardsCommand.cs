@@ -19,7 +19,7 @@ public class NetworkInterfaceCardsCommand : AsyncCommand<NetworkInterfaceCardsSe
                 new Markup($"[bold]Version:[/] {typeof(NetworkInterfaceCardsCommand).Assembly.GetName().Version}\n")
                 );
 
-        var jmesQuery = "[?type == `Microsoft.Network/networkSecurityGroups`]";
+        var jmesQuery = $"[?type == `{AzureResourceType.NetworkInterfaceCard}`]";
         var data = new Dictionary<
             Subscription, Dictionary<ResourceGroup, List<Resource>>
         >();
