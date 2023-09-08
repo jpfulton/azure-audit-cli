@@ -36,18 +36,11 @@ public class OpenInboundPortsRule : IRule<NetworkSecurityGroup>
             {
                 var destinationPorts = ParseRange(rule.DestinationPortRange);
 
-                Level level;
-                if (
+                Level level =
+                (
                     (rule.Protocol == Protocol.TCP && destinationPorts.Intersect(DISALLOWED_TCP_PORTS).Count() > 0) ||
                     (rule.Protocol == Protocol.UDP && destinationPorts.Intersect(DISALLOWED_UDP_PORTS).Count() > 0)
-                )
-                {
-                    level = Level.Critical;
-                }
-                else
-                {
-                    level = Level.Warn;
-                }
+                ) ? Level.Critical : Level.Warn;
 
                 var protocol = Enum.GetName(rule.Protocol);
                 var message = $"Open and unfiltered {protocol} port(s): {rule.DestinationPortRange} found.";
