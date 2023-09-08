@@ -22,36 +22,7 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
         > data
     )
     {
-        var tree = new Tree("[bold]Subscriptions[/]");
-
-        foreach (var sub in data.Keys)
-        {
-            var subTree = new Tree($"[bold blue]{sub.DisplayName} ({sub.SubscriptionId})[/]");
-            var resourceGroupResource = data[sub];
-
-            foreach (var pair in resourceGroupResource.Where(p => p.Value.Count > 0))
-            {
-                var rgTree = new Tree(
-                    $"[bold green]{pair.Key.Name} ({pair.Key.Location}) -> [[{pair.Value.Count} resource(s)]][/]"
-                );
-
-                foreach (var resource in pair.Value.Keys)
-                {
-                    var rTree = new Tree($"[bold]({resource.ResourceType})[/] {resource.Name}");
-                    pair.Value[resource].ToList().ForEach(o => rTree.AddNode(o.GetMarkup()));
-
-                    rgTree.AddNode(rTree);
-                }
-
-                subTree.AddNode(rgTree);
-            }
-
-            tree.AddNode(subTree);
-        }
-
-        AnsiConsole.Write(tree);
-
-        return Task.CompletedTask;
+        return WriteRuleOutputTree(data);
     }
 
     public override Task WriteNetworkSecurityGroups(
@@ -65,36 +36,7 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
         > data
     )
     {
-        var tree = new Tree("[bold]Subscriptions[/]");
-
-        foreach (var sub in data.Keys)
-        {
-            var subTree = new Tree($"[bold blue]{sub.DisplayName} ({sub.SubscriptionId})[/]");
-            var resourceGroupResource = data[sub];
-
-            foreach (var pair in resourceGroupResource.Where(p => p.Value.Count > 0))
-            {
-                var rgTree = new Tree(
-                    $"[bold green]{pair.Key.Name} ({pair.Key.Location}) -> [[{pair.Value.Count} resource(s)]][/]"
-                );
-
-                foreach (var resource in pair.Value.Keys)
-                {
-                    var rTree = new Tree($"[bold]({resource.ResourceType})[/] {resource.Name}");
-                    pair.Value[resource].ToList().ForEach(o => rTree.AddNode(o.GetMarkup()));
-
-                    rgTree.AddNode(rTree);
-                }
-
-                subTree.AddNode(rgTree);
-            }
-
-            tree.AddNode(subTree);
-        }
-
-        AnsiConsole.Write(tree);
-
-        return Task.CompletedTask;
+        return WriteRuleOutputTree(data);
     }
 
     public override Task WriteResources(
@@ -117,7 +59,7 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
 
                 foreach (var resource in resourceGroupResource[rg])
                 {
-                    rgTree.AddNode($"[bold]({resource.ResourceType})[/] {resource.Name}");
+                    rgTree.AddNode($"([italic]{resource.ResourceType}[/]) [bold]{resource.Name}[/]");
                 }
 
                 subTree.AddNode(rgTree);
@@ -161,6 +103,48 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
         }
 
         AnsiConsole.Write(table);
+
+        return Task.CompletedTask;
+    }
+
+    private static Task WriteRuleOutputTree<T>(
+        Dictionary<
+            Subscription, Dictionary<
+                ResourceGroup, Dictionary<
+                    Resource, List<IRuleOutput<T>>
+                >
+            >
+        > data
+    ) where T : Resource
+    {
+        var tree = new Tree("[bold]Subscriptions[/]");
+
+        foreach (var sub in data.Keys)
+        {
+            var subTree = new Tree($"[bold blue]{sub.DisplayName} ({sub.SubscriptionId})[/]");
+            var resourceGroupResource = data[sub];
+
+            foreach (var pair in resourceGroupResource.Where(p => p.Value.Count > 0))
+            {
+                var rgTree = new Tree(
+                    $"[bold green]{pair.Key.Name} ({pair.Key.Location}) -> [[{pair.Value.Count} resource(s)]][/]"
+                );
+
+                foreach (var resource in pair.Value.Keys)
+                {
+                    var rTree = new Tree($"([italic]{resource.ResourceType}[/]) [bold]{resource.Name}[/]");
+                    pair.Value[resource].ToList().ForEach(o => rTree.AddNode(o.GetMarkup()));
+
+                    rgTree.AddNode(rTree);
+                }
+
+                subTree.AddNode(rgTree);
+            }
+
+            tree.AddNode(subTree);
+        }
+
+        AnsiConsole.Write(tree);
 
         return Task.CompletedTask;
     }
