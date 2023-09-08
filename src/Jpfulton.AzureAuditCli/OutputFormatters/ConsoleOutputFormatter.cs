@@ -132,7 +132,7 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
 
                 foreach (var resource in pair.Value.Keys)
                 {
-                    var rTree = new Tree($"([italic]{resource.ResourceType}[/]) [bold]{resource.Name}[/]");
+                    var rTree = new Tree($"([dim italic]{resource.ResourceType}[/]) [bold]{resource.Name}[/]");
                     pair.Value[resource].ToList().ForEach(o => rTree.AddNode(o.GetMarkup()));
 
                     rgTree.AddNode(rTree);
@@ -144,7 +144,10 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
             tree.AddNode(subTree);
         }
 
+        AnsiConsole.Write(new Markup("[bold]Audit Rule Outputs[/]").Centered());
+        AnsiConsole.WriteLine();
         AnsiConsole.Write(tree);
+        AnsiConsole.WriteLine();
 
         return Task.CompletedTask;
     }

@@ -24,6 +24,17 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
             Subscription, Dictionary<ResourceGroup, List<Resource>>
         >();
 
+        var outputData = new Dictionary<
+            Subscription, Dictionary<
+                ResourceGroup, Dictionary<
+                    Resource, List<IRuleOutput<TResource>>
+                >
+            >
+        >();
+
+        AnsiConsole.Write(new Markup($"[bold]Executing command [italic]{context.Name}[/]...[/]").Centered());
+        AnsiConsole.WriteLine();
+
         await AnsiConsole.Progress()
             .AutoRefresh(true) // Turn on auto refresh
             .AutoClear(false)   // Do not remove the task list when done
@@ -40,19 +51,45 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
             {
                 var subscriptionsTask = ctx.AddTask("[green]Getting subscriptions[/]", new ProgressTaskSettings { AutoStart = false });
                 var rgTask = ctx.AddTask("[green]Getting resources[/]", new ProgressTaskSettings { AutoStart = false });
+                var rulesTask = ctx.AddTask("[green]Evaluating rules[/]", new ProgressTaskSettings { AutoStart = false });
 
                 var subscriptions = await SubscriptionHelpers.GetSubscriptionsAsync(settings, subscriptionsTask);
                 await SubscriptionHelpers.GetResourceGroupsAsync(data, rgTask, subscriptions, true, jmesQuery);
+
+                outputData = EvaluateRulesAndBuildOutputData(data, rulesTask);
             }
         );
 
-        var outputData = new Dictionary<
-            Subscription, Dictionary<
-                ResourceGroup, Dictionary<
-                    Resource, List<IRuleOutput<TResource>>
-                >
+        await WriteOutput(settings, outputData);
+
+        return 0;
+    }
+
+    private static Dictionary<
+        Subscription, Dictionary<
+            ResourceGroup, Dictionary<
+                Resource, List<IRuleOutput<TResource>>
             >
-        >();
+        >
+    > EvaluateRulesAndBuildOutputData(
+        Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> data,
+        ProgressTask progressTask
+    )
+    {
+        var resourceCount = GetResourceCount(data);
+        var ruleCount = RuleEvaluator<TResource>.RuleCount;
+        var totalRuleRuns = resourceCount * ruleCount;
+        var progressIncrement = 100.0 / totalRuleRuns;
+
+        progressTask.StartTask();
+
+        var outputData = new Dictionary<
+                    Subscription, Dictionary<
+                        ResourceGroup, Dictionary<
+                            Resource, List<IRuleOutput<TResource>>
+                        >
+                    >
+                >();
 
         data.Keys.ToList().ForEach(sub =>
         {
@@ -72,6 +109,8 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
                 {
                     var ruleOutputs = RuleEvaluator<TResource>.Evaluate(r);
                     resourceToRuleOutputs.Add(r, ruleOutputs.ToList());
+
+                    progressTask.Increment(progressIncrement * ruleCount);
                 });
 
                 rgToResources.Add(rg, resourceToRuleOutputs);
@@ -80,9 +119,22 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
             outputData.Add(sub, rgToResources);
         });
 
-        await WriteOutput(settings, outputData);
+        progressTask.StopTask();
+        return outputData;
+    }
 
-        return 0;
+    private static int GetResourceCount(Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> data)
+    {
+        var resourceCount = 0;
+        data.Values.ToList().ForEach(d =>
+        {
+            d.Values.ToList().ForEach(l =>
+            {
+                resourceCount += l.Count;
+            });
+        });
+
+        return resourceCount;
     }
 
     protected abstract string GetAzureType();
