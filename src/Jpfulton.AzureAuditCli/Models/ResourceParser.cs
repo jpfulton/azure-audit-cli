@@ -8,6 +8,7 @@ public static class ResourceParser
 {
     private static readonly Dictionary<string, Type> typeMap = new()
     {
+        {AzureResourceType.IpConfiguration, typeof(IpConfiguration)},
         {AzureResourceType.NetworkInterfaceCard, typeof(NetworkInterfaceCard)},
         {AzureResourceType.NetworkSecurityGroup, typeof(NetworkSecurityGroup)},
         {AzureResourceType.SecurityRule, typeof(SecurityRule)}
@@ -65,14 +66,20 @@ public static class ResourceParser
             new Resource();
     }
 
-    private static async Task<Resource> ParseRemainingProperties(this Resource resource, JsonElement element)
+    private static async Task<Resource> ParseRemainingProperties(
+        this Resource resource,
+        JsonElement element
+        )
     {
         var resourceType = resource.ResourceType;
 
         switch (resourceType)
         {
+            case AzureResourceType.IpConfiguration:
+                return ParseIpConfiguration(resource, element);
+
             case AzureResourceType.NetworkInterfaceCard:
-                return ParseNetworkInterfaceCard(resource, element);
+                return await ParseNetworkInterfaceCardAsync(resource, element);
 
             case AzureResourceType.NetworkSecurityGroup:
                 return await ParseNetworkSecurityGroupAsync(resource, element);
@@ -139,7 +146,10 @@ public static class ResourceParser
         return rule;
     }
 
-    private static NetworkInterfaceCard ParseNetworkInterfaceCard(Resource resource, JsonElement element)
+    private static async Task<NetworkInterfaceCard> ParseNetworkInterfaceCardAsync(
+        Resource resource,
+        JsonElement element
+        )
     {
         var card = resource as NetworkInterfaceCard ?? throw new ArgumentException("Resource is not of correct Type.", "resource");
 
@@ -152,8 +162,35 @@ public static class ResourceParser
             card.Primary = propsElement.GetBooleanPropertyValue("primary") ?? false;
             card.VirtualMachine = ParseRef(propsElement.GetChildElement("virtualMachine"));
             card.VnetEncryptionSupported = propsElement.GetBooleanPropertyValue("vnetEncryptionSupported") ?? false;
+
+            if (propsElement.TryGetProperty("ipConfigurations", out JsonElement configsElement))
+            {
+                foreach (var configElement in configsElement.EnumerateArray())
+                {
+                    card.IpConfigurations.Add((IpConfiguration)await ParseAsync(configElement));
+                }
+            }
         }
 
         return card;
+    }
+
+    private static IpConfiguration ParseIpConfiguration(Resource resource, JsonElement element)
+    {
+        var config = resource as IpConfiguration ?? throw new ArgumentException("Resource is not of correct Type.", "resource");
+
+        if (
+            element.TryGetProperty("properties", out JsonElement propsElement) &&
+            propsElement.ValueKind != JsonValueKind.Null
+            )
+        {
+            config.Primary = propsElement.GetBooleanPropertyValue("primary") ?? false;
+            config.PrivateIpAddress = propsElement.GetStringPropertyValue("privateIPAddress");
+            config.NetworkSecurityGroup = ParseRef(propsElement.GetChildElement("networkSecurityGroup"));
+            config.PublicIpAddress = ParseRef(propsElement.GetChildElement("publicIPAddress"));
+            config.Subnet = ParseRef(propsElement.GetChildElement("subnet"));
+        }
+
+        return config;
     }
 }
