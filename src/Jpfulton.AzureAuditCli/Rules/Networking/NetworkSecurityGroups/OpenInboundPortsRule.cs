@@ -16,7 +16,7 @@ public class OpenInboundPortsRule : IRule<NetworkSecurityGroup>
 
         outputs.AddRange(EvaluateSecurityRules(resource));
 
-        return outputs.OrderByDescending(o => o.Level).ThenBy(o => o.Message);
+        return outputs;
     }
 
     private IEnumerable<IRuleOutput<NetworkSecurityGroup>> EvaluateSecurityRules(
@@ -27,7 +27,6 @@ public class OpenInboundPortsRule : IRule<NetworkSecurityGroup>
 
         outputs.AddRange(EvaluateOpenAndUnfiltered(resource));
         outputs.AddRange(EvaluateOpenAndFiltered(resource));
-        outputs.AddRange(EvaluateUnattachedToNic(resource));
 
         return outputs;
     }
@@ -93,27 +92,6 @@ public class OpenInboundPortsRule : IRule<NetworkSecurityGroup>
                     resource
                 ));
             });
-
-        return outputs;
-    }
-
-    private static IEnumerable<IRuleOutput<NetworkSecurityGroup>> EvaluateUnattachedToNic(
-        NetworkSecurityGroup resource
-        )
-    {
-        var outputs = new List<IRuleOutput<NetworkSecurityGroup>>();
-
-        if (resource.NetworkInterfaces.Count == 0)
-        {
-            var level = Level.Info;
-            var message = $"No network interfaces are attached.";
-
-            outputs.Add(new DefaultRuleOutput<NetworkSecurityGroup>(
-                level,
-                message,
-                resource
-            ));
-        }
 
         return outputs;
     }

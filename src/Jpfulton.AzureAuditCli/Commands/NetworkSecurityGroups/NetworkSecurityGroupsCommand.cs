@@ -70,7 +70,7 @@ public class NetworkSecurityGroupsCommand : AsyncCommand<NetworkSecurityGroupsSe
 
                 data[sub][rg].ForEach(r =>
                 {
-                    var ruleOutputs = RuleEvaluator.Evaluate((NetworkSecurityGroup)r);
+                    var ruleOutputs = RuleEvaluator<NetworkSecurityGroup>.Evaluate((NetworkSecurityGroup)r);
                     resourceToRuleOutputs.Add(r, ruleOutputs.ToList());
                 });
 
