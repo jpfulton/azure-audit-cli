@@ -19,7 +19,7 @@ public static class RuleEvaluator<T> where T : Resource
 
     private static List<IRule<T>> GetRules()
     {
-        var rules = new List<IRule<T>>();
+        var ruleInstances = new List<IRule<T>>();
 
         var ruleType = typeof(IRule<T>);
         var assembly = typeof(RuleEvaluator<T>).Assembly;
@@ -27,7 +27,7 @@ public static class RuleEvaluator<T> where T : Resource
         var ruleTypes = assembly.GetTypes()
             .Where(type => type.IsAssignableTo(ruleType) && !type.IsInterface && !type.IsAbstract);
 
-        ruleTypes.ToList().ForEach(rt => rules.Add((IRule<T>)Activator.CreateInstance(rt)!));
-        return rules;
+        ruleTypes.ToList().ForEach(rt => ruleInstances.Add((IRule<T>)Activator.CreateInstance(rt)!));
+        return ruleInstances;
     }
 }
