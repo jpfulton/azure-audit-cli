@@ -41,7 +41,7 @@ public class DefaultRuleOutput<T> : IRuleOutput<T> where T : Resource
                 break;
         }
 
-        var output = $"[[{format}{Enum.GetName(Level)}]][/] {Message}";
+        var output = $"{format}[[{Enum.GetName(Level)}]][/] {Message}";
         return new Markup(output);
     }
 }
