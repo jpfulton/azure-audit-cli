@@ -1,10 +1,15 @@
+using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 
 namespace Jpfulton.AzureAuditCli.Infrastructure;
 
 public static class JsonExtensions
 {
-    public static string GetStringPropertyValue(this JsonElement element, string propertyName)
+    public static string GetStringPropertyValue(
+        this JsonElement element,
+        string propertyName,
+        bool required = true
+        )
     {
         if (element.TryGetProperty(propertyName, out JsonElement childElement))
         {
@@ -15,12 +20,35 @@ public static class JsonExtensions
             }
             else
             {
-                throw new Exception($"Value of '${propertyName}' property is null.");
+                throw new Exception($"Value of '{propertyName}' property is null.");
             }
         }
         else
         {
-            throw new Exception($"Unable to find the '${propertyName}' property in the JSON output.");
+            if (required)
+                throw new Exception($"Unable to find the '{propertyName}' property in the JSON output.");
+            else
+                return string.Empty;
+        }
+    }
+
+    public static int? GetIntegerPropertyValue(
+        this JsonElement element,
+        string propertyName,
+        bool required = true
+        )
+    {
+        if (element.TryGetProperty(propertyName, out JsonElement childElement))
+        {
+            int value = childElement.GetInt32();
+            return value;
+        }
+        else
+        {
+            if (required)
+                throw new Exception($"Unable to find the '{propertyName}' property in the JSON output.");
+            else
+                return null;
         }
     }
 }

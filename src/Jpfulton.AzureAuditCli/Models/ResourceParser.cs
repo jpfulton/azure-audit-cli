@@ -31,7 +31,7 @@ public static class ResourceParser
         resource.Id = resourceId;
         resource.ResourceGroup = element.GetStringPropertyValue("resourceGroup");
         resource.ResourceType = resourceType;
-        resource.Location = element.GetStringPropertyValue("location");
+        resource.Location = element.GetStringPropertyValue("location", required: false);
         resource.Name = element.GetStringPropertyValue("name");
         resource.CompleteJsonBody = queryForCompleteJson ? await AzCommand.GetAzureResourceJsonByIdAsync(resourceId) : element.ToString();
 
@@ -41,10 +41,6 @@ public static class ResourceParser
             {
                 resource.SkuName = skuElement.GetStringPropertyValue("name");
             }
-        }
-        else
-        {
-            throw new Exception("Unable to find the 'sku' element in the JSON output.");
         }
 
         if (
@@ -127,7 +123,7 @@ public static class ResourceParser
             rule.DestinationAddressPrefix = propsElement.GetStringPropertyValue("destinationAddressPrefix");
             rule.DestinationPortRange = propsElement.GetStringPropertyValue("destinationPortRange");
             rule.Direction = Enum.Parse<Direction>(propsElement.GetStringPropertyValue("direction"));
-            rule.Priority = int.Parse(propsElement.GetStringPropertyValue("priority"));
+            rule.Priority = propsElement.GetIntegerPropertyValue("priority") ?? -1;
             rule.Protocol = Enum.Parse<Protocol>(propsElement.GetStringPropertyValue("protocol"));
             rule.SourceAddressPrefix = propsElement.GetStringPropertyValue("sourceAddressPrefix");
             rule.SourcePortRange = propsElement.GetStringPropertyValue("sourcePortRange");

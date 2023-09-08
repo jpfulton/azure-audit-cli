@@ -31,6 +31,7 @@ public static class SubscriptionHelpers
         Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> subscriptionToResources,
         ProgressTask rgTask,
         List<Subscription> subscriptions,
+        bool fetchFullResource = false,
         string? jmesQuery = null
         )
     {
@@ -43,7 +44,7 @@ public static class SubscriptionHelpers
         {
             var groups = await AzCommand.GetAzureResourceGroupsAsync(Guid.Parse(sub.SubscriptionId));
 
-            var groupToResourcesForSubscription = await GetResourcesAsync(sub, groups, jmesQuery);
+            var groupToResourcesForSubscription = await GetResourcesAsync(sub, groups, fetchFullResource, jmesQuery);
             subscriptionToResources.Add(sub, groupToResourcesForSubscription);
 
             subscriptionCounter += 1;
@@ -55,10 +56,11 @@ public static class SubscriptionHelpers
     public static async Task<Dictionary<ResourceGroup, List<Resource>>> GetResourcesAsync(
         Subscription sub,
         ResourceGroup[] groups,
+        bool fetchFullResource = false,
         string? jmesQuery = null
         )
     {
-        var groupToResourcesForSubscription = new Dictionary<ResourceGroup, List<Resource>>();
+        var data = new Dictionary<ResourceGroup, List<Resource>>();
 
         var tasks = new Dictionary<ResourceGroup, Task<Resource[]>>();
         groups.ToList().ForEach(rg =>
@@ -66,10 +68,37 @@ public static class SubscriptionHelpers
             tasks.Add(rg, AzCommand.GetAzureResourcesAsync(Guid.Parse(sub.SubscriptionId), rg.Name, jmesQuery: jmesQuery));
         });
 
-        await Task.WhenAll(tasks.Values.ToArray());
+        await Task.WhenAll(tasks.Values);
 
-        tasks.Keys.ToList().ForEach(rg => groupToResourcesForSubscription.Add(rg, tasks[rg].Result.ToList()));
+        if (fetchFullResource)
+        {
+            var fullTasks = new Dictionary<ResourceGroup, List<Task<Resource>>>();
+            tasks.Keys.ToList().ForEach(rg =>
+            {
+                var resourceTasks = new List<Task<Resource>>();
+                tasks[rg].Result.ToList().ForEach(r => resourceTasks.Add(AzCommand.GetAzureResourceByIdAsync(r.Id)));
 
-        return groupToResourcesForSubscription;
+                fullTasks.Add(rg, resourceTasks);
+            });
+
+            var flatListOfAllTasks = new List<Task<Resource>>();
+            fullTasks.Values.ToList().ForEach(l => flatListOfAllTasks.AddRange(l));
+            await Task.WhenAll(flatListOfAllTasks);
+
+            fullTasks.Keys.ToList().ForEach(group =>
+            {
+                var completeResources = new List<Resource>();
+                fullTasks[group].ForEach(t => completeResources.Add(t.Result));
+
+                data.Add(group, completeResources);
+            });
+        }
+        else
+        {
+            tasks.Keys.ToList().ForEach(rg => data.Add(rg, tasks[rg].Result.ToList()));
+        }
+
+
+        return data;
     }
 }
