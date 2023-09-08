@@ -35,12 +35,12 @@ public static class ResourceParser
         resource.Name = element.GetStringPropertyValue("name");
         resource.CompleteJsonBody = queryForCompleteJson ? await AzCommand.GetAzureResourceJsonByIdAsync(resourceId) : element.ToString();
 
-        if (element.TryGetProperty("sku", out JsonElement skuElement))
+        if (
+            element.TryGetProperty("sku", out JsonElement skuElement) &&
+            skuElement.ValueKind != JsonValueKind.Null
+        )
         {
-            if (skuElement.ValueKind != JsonValueKind.Null)
-            {
-                resource.SkuName = skuElement.GetStringPropertyValue("name");
-            }
+            resource.SkuName = skuElement.GetStringPropertyValue("name");
         }
 
         if (
