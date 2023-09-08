@@ -51,4 +51,43 @@ public static class JsonExtensions
                 return null;
         }
     }
+
+    public static bool? GetBooleanPropertyValue(
+        this JsonElement element,
+        string propertyName,
+        bool required = true
+        )
+    {
+        if (element.TryGetProperty(propertyName, out JsonElement childElement))
+        {
+            bool value = childElement.GetBoolean();
+            return value;
+        }
+        else
+        {
+            if (required)
+                throw new Exception($"Unable to find the '{propertyName}' property in the JSON output.");
+            else
+                return null;
+        }
+    }
+
+    public static JsonElement? GetChildElement(
+        this JsonElement element,
+        string propertyName,
+        bool required = false
+    )
+    {
+        if (element.TryGetProperty(propertyName, out JsonElement childElement))
+        {
+            return childElement;
+        }
+        else
+        {
+            if (required)
+                throw new Exception($"Unable to find the '{propertyName}' property in the JSON output.");
+            else
+                return null;
+        }
+    }
 }

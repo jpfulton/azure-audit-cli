@@ -8,17 +8,17 @@ public static class ResourceParser
 {
     private static readonly Dictionary<string, Type> typeMap = new()
     {
-        {AzureResourceType.NetworkInterfaceCard, typeof(NetworkInterfaceCard) },
-        {AzureResourceType.NetworkSecurityGroup, typeof(NetworkSecurityGroup) },
+        {AzureResourceType.NetworkInterfaceCard, typeof(NetworkInterfaceCard)},
+        {AzureResourceType.NetworkSecurityGroup, typeof(NetworkSecurityGroup)},
         {AzureResourceType.SecurityRule, typeof(SecurityRule)}
     };
 
-    public static ResourceRef ParseRef(JsonElement element)
+    public static ResourceRef? ParseRef(JsonElement? element)
     {
-        return new ResourceRef
+        return !element.HasValue ? null : new ResourceRef
         {
-            Id = element.GetStringPropertyValue("id"),
-            ResourceGroup = element.GetStringPropertyValue("resourceGroup")
+            Id = element.Value.GetStringPropertyValue("id"),
+            ResourceGroup = element.Value.GetStringPropertyValue("resourceGroup")
         };
     }
 
@@ -101,7 +101,7 @@ public static class ResourceParser
             {
                 foreach (var nicElement in nicsElement.EnumerateArray())
                 {
-                    nsg.NetworkInterfaces.Add(ParseRef(nicElement));
+                    nsg.NetworkInterfaces.Add(ParseRef(nicElement)!);
                 }
             }
 
@@ -148,6 +148,10 @@ public static class ResourceParser
             propsElement.ValueKind != JsonValueKind.Null
             )
         {
+            card.EnableAcceleratedNetworking = propsElement.GetBooleanPropertyValue("enableAcceleratedNetworking", false) ?? false;
+            card.Primary = propsElement.GetBooleanPropertyValue("primary") ?? false;
+            card.VirtualMachine = ParseRef(propsElement.GetChildElement("virtualMachine"));
+            card.VnetEncryptionSupported = propsElement.GetBooleanPropertyValue("vnetEncryptionSupported") ?? false;
         }
 
         return card;

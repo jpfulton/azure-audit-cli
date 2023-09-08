@@ -1,4 +1,5 @@
-﻿using Jpfulton.AzureAuditCli.Commands.Networking.NetworkSecurityGroups;
+﻿using Jpfulton.AzureAuditCli.Commands.Networking.NetworkInterfaceCards;
+using Jpfulton.AzureAuditCli.Commands.Networking.NetworkSecurityGroups;
 using Jpfulton.AzureAuditCli.Commands.Resources;
 using Jpfulton.AzureAuditCli.Commands.Subscriptions;
 using Jpfulton.AzureAuditCli.Infrastructure;
@@ -18,6 +19,9 @@ app.Configure(config =>
 #if DEBUG
     config.PropagateExceptions();
 #endif
+
+    config.AddCommand<NetworkInterfaceCardsCommand>("nic")
+        .WithDescription("Audit NICs in subscriptions accessible with the current Azure CLI login.");
 
     config.AddCommand<NetworkSecurityGroupsCommand>("nsg")
         .WithDescription("Audit NSGs in subscriptions accessible with the current Azure CLI login.");
