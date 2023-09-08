@@ -1,5 +1,7 @@
 using Jpfulton.AzureAuditCli.Models;
+using Jpfulton.AzureAuditCli.Models.Networking;
 using Jpfulton.AzureAuditCli.OutputFormatters;
+using Jpfulton.AzureAuditCli.Rules;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -18,7 +20,9 @@ public class NetworkSecurityGroupsCommand : AsyncCommand<NetworkSecurityGroupsSe
                 );
 
         var jmesQuery = "[?type == `Microsoft.Network/networkSecurityGroups`]";
-        var data = new Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>>();
+        var data = new Dictionary<
+            Subscription, Dictionary<ResourceGroup, List<Resource>>
+        >();
 
         await AnsiConsole.Progress()
             .AutoRefresh(true) // Turn on auto refresh
@@ -42,8 +46,42 @@ public class NetworkSecurityGroupsCommand : AsyncCommand<NetworkSecurityGroupsSe
             }
         );
 
+        var outputData = new Dictionary<
+            Subscription, Dictionary<
+                ResourceGroup, Dictionary<
+                    Resource, List<IRuleOutput<NetworkSecurityGroup>>
+                >
+            >
+        >();
+
+        data.Keys.ToList().ForEach(sub =>
+        {
+            var rgToResources = new Dictionary<
+                ResourceGroup, Dictionary<
+                    Resource, List<IRuleOutput<NetworkSecurityGroup>>
+                >
+            >();
+
+            data[sub].Keys.ToList().ForEach(rg =>
+            {
+                var resourceToRuleOutputs = new Dictionary<
+                    Resource, List<IRuleOutput<NetworkSecurityGroup>>
+                    >();
+
+                data[sub][rg].ForEach(r =>
+                {
+                    var ruleOutputs = RuleEvaluator.Evaluate((NetworkSecurityGroup)r);
+                    resourceToRuleOutputs.Add(r, ruleOutputs.ToList());
+                });
+
+                rgToResources.Add(rg, resourceToRuleOutputs);
+            });
+
+            outputData.Add(sub, rgToResources);
+        });
+
         await OutputFormattersCollection.Formatters[settings.Output]
-            .WriteNetworkSecurityGroups(settings, data);
+            .WriteNetworkSecurityGroups(settings, outputData);
 
         return 0;
     }

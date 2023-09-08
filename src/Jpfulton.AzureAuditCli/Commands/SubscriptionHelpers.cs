@@ -28,7 +28,11 @@ public static class SubscriptionHelpers
     }
 
     public static async Task GetResourceGroupsAsync(
-        Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> subscriptionToResources,
+        Dictionary<
+            Subscription, Dictionary<
+                ResourceGroup, List<Resource>
+            >
+        > data,
         ProgressTask rgTask,
         List<Subscription> subscriptions,
         bool fetchFullResource = false,
@@ -45,7 +49,7 @@ public static class SubscriptionHelpers
             var groups = await AzCommand.GetAzureResourceGroupsAsync(Guid.Parse(sub.SubscriptionId));
 
             var groupToResourcesForSubscription = await GetResourcesAsync(sub, groups, fetchFullResource, jmesQuery);
-            subscriptionToResources.Add(sub, groupToResourcesForSubscription);
+            data.Add(sub, groupToResourcesForSubscription);
 
             subscriptionCounter += 1;
             rgTask.Increment(rgProgressIncrement * subscriptionCounter);
