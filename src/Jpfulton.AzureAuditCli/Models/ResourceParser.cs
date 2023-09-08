@@ -6,7 +6,7 @@ namespace Jpfulton.AzureAuditCli.Models;
 
 public static class ResourceParser
 {
-    private static readonly Dictionary<string, Type> typeMap = new Dictionary<string, Type>
+    private static readonly Dictionary<string, Type> typeMap = new()
     {
         {AzureResourceType.NetworkInterfaceCard, typeof(NetworkInterfaceCard) },
         {AzureResourceType.NetworkSecurityGroup, typeof(NetworkSecurityGroup) },
