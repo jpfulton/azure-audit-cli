@@ -70,7 +70,7 @@ public class NetworkInterfaceCardsCommand : AsyncCommand<NetworkInterfaceCardsSe
 
                 data[sub][rg].ForEach(r =>
                 {
-                    var ruleOutputs = RuleEvaluator<NetworkInterfaceCard>.Evaluate((NetworkInterfaceCard)r);
+                    var ruleOutputs = RuleEvaluator<NetworkInterfaceCard>.Evaluate(r);
                     resourceToRuleOutputs.Add(r, ruleOutputs.ToList());
                 });
 
