@@ -9,30 +9,7 @@ namespace Jpfulton.AzureAuditCli.OutputFormatters;
 
 public class ConsoleOutputFormatter : BaseOutputFormatter
 {
-    public override Task WriteNetworkInterfaceCards(
-        ResourceSettings settings,
-        Dictionary<
-            Subscription, Dictionary<
-                ResourceGroup, Dictionary<
-                    Resource, List<IRuleOutput>
-                >
-            >
-        > data
-    )
-    {
-        return WriteRuleOutputTree(data);
-    }
-
-    public override Task WriteNetworkSecurityGroups(
-        ResourceSettings settings,
-        Dictionary<
-            Subscription, Dictionary<
-                ResourceGroup, Dictionary<
-                    Resource, List<IRuleOutput>
-                >
-            >
-        > data
-    )
+    public override Task WriteRuleOutputs(ResourceSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> data)
     {
         return WriteRuleOutputTree(data);
     }
@@ -147,12 +124,6 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
         AnsiConsole.Write(tree);
         AnsiConsole.WriteLine();
 
-        return Task.CompletedTask;
-    }
-
-    public override Task WriteNetworking(ResourceSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> data)
-    {
-        WriteRuleOutputTree(data);
         return Task.CompletedTask;
     }
 }

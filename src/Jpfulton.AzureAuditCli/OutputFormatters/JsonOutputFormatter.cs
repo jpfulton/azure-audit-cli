@@ -12,13 +12,7 @@ namespace Jpfulton.AzureAuditCli.OutputFormatters;
 
 public class JsonOutputFormatter : BaseOutputFormatter
 {
-    public override Task WriteNetworkInterfaceCards(ResourceSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> data)
-    {
-        WriteJson(FlattenRuleOutputs(data));
-        return Task.CompletedTask;
-    }
-
-    public override Task WriteNetworkSecurityGroups(ResourceSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> data)
+    public override Task WriteRuleOutputs(ResourceSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> data)
     {
         WriteJson(FlattenRuleOutputs(data));
         return Task.CompletedTask;
@@ -86,12 +80,6 @@ public class JsonOutputFormatter : BaseOutputFormatter
             .NullColor(Color.Green)
         );
         AnsiConsole.WriteLine();
-    }
-
-    public override Task WriteNetworking(ResourceSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> data)
-    {
-        WriteJson(FlattenRuleOutputs(data));
-        return Task.CompletedTask;
     }
 }
 

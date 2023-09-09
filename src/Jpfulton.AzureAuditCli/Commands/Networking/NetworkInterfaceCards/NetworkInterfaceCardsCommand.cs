@@ -16,6 +16,6 @@ public class NetworkInterfaceCardsCommand
     protected override Task WriteOutput(ResourceSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> outputData)
     {
         return OutputFormattersCollection.Formatters[settings.Output]
-            .WriteNetworkInterfaceCards(settings, outputData);
+            .WriteRuleOutputs(settings, outputData);
     }
 }

@@ -42,7 +42,7 @@ public class NetworkingCommand : BaseRuleOutputCommand<ResourceSettings, Resourc
     protected override Task WriteOutput(ResourceSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> outputData)
     {
         return OutputFormattersCollection.Formatters[settings.Output]
-            .WriteNetworking(settings, outputData);
+            .WriteRuleOutputs(settings, outputData);
     }
 
     private static Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> MergeData(
