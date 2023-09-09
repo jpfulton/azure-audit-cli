@@ -32,12 +32,15 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
             >
         >();
 
-        AnsiConsole.Write(new Markup($"[bold]Executing command [italic]{context.Name}[/]...[/]").Centered());
-        AnsiConsole.WriteLine();
+        if (settings.Output == OutputFormat.Console)
+        {
+            AnsiConsole.Write(new Markup($"[bold]Executing command [italic]{context.Name}[/]...[/]").Centered());
+            AnsiConsole.WriteLine();
+        }
 
         await AnsiConsole.Progress()
             .AutoRefresh(true) // Turn on auto refresh
-            .AutoClear(false)   // Do not remove the task list when done
+            .AutoClear(settings.Output != OutputFormat.Console)   // Do not remove the task list when done
             .HideCompleted(false)   // Hide tasks as they are completed
             .Columns(new ProgressColumn[]
             {
