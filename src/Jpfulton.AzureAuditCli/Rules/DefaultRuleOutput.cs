@@ -3,18 +3,18 @@ using Spectre.Console;
 
 namespace Jpfulton.AzureAuditCli.Rules;
 
-public class DefaultRuleOutput<T> : IRuleOutput<T> where T : Resource
+public class DefaultRuleOutput : IRuleOutput
 {
     public Level Level { get; private set; }
 
     public string Message { get; private set; }
 
-    public T Resource { get; private set; }
+    public Resource Resource { get; private set; }
 
     public DefaultRuleOutput(
         Level level,
         string message,
-        T resource
+        Resource resource
     )
     {
         Level = level;

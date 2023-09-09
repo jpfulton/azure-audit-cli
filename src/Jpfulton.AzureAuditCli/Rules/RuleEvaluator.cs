@@ -6,11 +6,13 @@ public static class RuleEvaluator<T> where T : Resource
 {
     private static readonly List<IRule<T>> rules = GetRules();
 
-    public static IEnumerable<IRuleOutput<T>> Evaluate(Resource input)
+    public static int RuleCount { get { return rules.Count; } }
+
+    public static IEnumerable<IRuleOutput> Evaluate(Resource input)
     {
         T resource = input as T ?? throw new ArgumentException("Input is not of correct type.", "input");
 
-        var outputs = new List<IRuleOutput<T>>();
+        var outputs = new List<IRuleOutput>();
 
         rules.ForEach(r => outputs.AddRange(r.Evaluate(resource)));
 

@@ -9,5 +9,6 @@ public static class OutputFormattersCollection
     static OutputFormattersCollection()
     {
         Formatters.Add(OutputFormat.Console, new ConsoleOutputFormatter());
+        Formatters.Add(OutputFormat.Json, new JsonOutputFormatter());
     }
 }

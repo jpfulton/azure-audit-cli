@@ -1,9 +1,7 @@
-using Jpfulton.AzureAuditCli.Commands.Networking.NetworkInterfaceCards;
-using Jpfulton.AzureAuditCli.Commands.Networking.NetworkSecurityGroups;
+using Jpfulton.AzureAuditCli.Commands;
 using Jpfulton.AzureAuditCli.Commands.Resources;
 using Jpfulton.AzureAuditCli.Commands.Subscriptions;
 using Jpfulton.AzureAuditCli.Models;
-using Jpfulton.AzureAuditCli.Models.Networking;
 using Jpfulton.AzureAuditCli.Rules;
 using Spectre.Console;
 
@@ -12,89 +10,31 @@ namespace Jpfulton.AzureAuditCli.OutputFormatters;
 public class ConsoleOutputFormatter : BaseOutputFormatter
 {
     public override Task WriteNetworkInterfaceCards(
-        NetworkInterfaceCardsSettings settings,
+        ResourceSettings settings,
         Dictionary<
             Subscription, Dictionary<
                 ResourceGroup, Dictionary<
-                    Resource, List<IRuleOutput<NetworkInterfaceCard>>
+                    Resource, List<IRuleOutput>
                 >
             >
         > data
     )
     {
-        var tree = new Tree("[bold]Subscriptions[/]");
-
-        foreach (var sub in data.Keys)
-        {
-            var subTree = new Tree($"[bold blue]{sub.DisplayName} ({sub.SubscriptionId})[/]");
-            var resourceGroupResource = data[sub];
-
-            foreach (var pair in resourceGroupResource.Where(p => p.Value.Count > 0))
-            {
-                var rgTree = new Tree(
-                    $"[bold green]{pair.Key.Name} ({pair.Key.Location}) -> [[{pair.Value.Count} resource(s)]][/]"
-                );
-
-                foreach (var resource in pair.Value.Keys)
-                {
-                    var rTree = new Tree($"[bold]({resource.ResourceType})[/] {resource.Name}");
-                    pair.Value[resource].ToList().ForEach(o => rTree.AddNode(o.GetMarkup()));
-
-                    rgTree.AddNode(rTree);
-                }
-
-                subTree.AddNode(rgTree);
-            }
-
-            tree.AddNode(subTree);
-        }
-
-        AnsiConsole.Write(tree);
-
-        return Task.CompletedTask;
+        return WriteRuleOutputTree(data);
     }
 
     public override Task WriteNetworkSecurityGroups(
-        NetworkSecurityGroupsSettings settings,
+        ResourceSettings settings,
         Dictionary<
             Subscription, Dictionary<
                 ResourceGroup, Dictionary<
-                    Resource, List<IRuleOutput<NetworkSecurityGroup>>
+                    Resource, List<IRuleOutput>
                 >
             >
         > data
     )
     {
-        var tree = new Tree("[bold]Subscriptions[/]");
-
-        foreach (var sub in data.Keys)
-        {
-            var subTree = new Tree($"[bold blue]{sub.DisplayName} ({sub.SubscriptionId})[/]");
-            var resourceGroupResource = data[sub];
-
-            foreach (var pair in resourceGroupResource.Where(p => p.Value.Count > 0))
-            {
-                var rgTree = new Tree(
-                    $"[bold green]{pair.Key.Name} ({pair.Key.Location}) -> [[{pair.Value.Count} resource(s)]][/]"
-                );
-
-                foreach (var resource in pair.Value.Keys)
-                {
-                    var rTree = new Tree($"[bold]({resource.ResourceType})[/] {resource.Name}");
-                    pair.Value[resource].ToList().ForEach(o => rTree.AddNode(o.GetMarkup()));
-
-                    rgTree.AddNode(rTree);
-                }
-
-                subTree.AddNode(rgTree);
-            }
-
-            tree.AddNode(subTree);
-        }
-
-        AnsiConsole.Write(tree);
-
-        return Task.CompletedTask;
+        return WriteRuleOutputTree(data);
     }
 
     public override Task WriteResources(
@@ -117,7 +57,7 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
 
                 foreach (var resource in resourceGroupResource[rg])
                 {
-                    rgTree.AddNode($"[bold]({resource.ResourceType})[/] {resource.Name}");
+                    rgTree.AddNode($"([italic]{resource.ResourceType}[/]) [bold]{resource.Name}[/]");
                 }
 
                 subTree.AddNode(rgTree);
@@ -162,6 +102,57 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
 
         AnsiConsole.Write(table);
 
+        return Task.CompletedTask;
+    }
+
+    private static Task WriteRuleOutputTree(
+        Dictionary<
+            Subscription, Dictionary<
+                ResourceGroup, Dictionary<
+                    Resource, List<IRuleOutput>
+                >
+            >
+        > data
+    )
+    {
+        var tree = new Tree("[bold]Subscriptions[/]");
+
+        foreach (var sub in data.Keys)
+        {
+            var subTree = new Tree($"[bold blue]{sub.DisplayName} ({sub.SubscriptionId})[/]");
+            var resourceGroupResource = data[sub];
+
+            foreach (var pair in resourceGroupResource.Where(p => p.Value.Count > 0))
+            {
+                var rgTree = new Tree(
+                    $"[bold green]{pair.Key.Name} ({pair.Key.Location}) -> [[{pair.Value.Count} resource(s)]][/]"
+                );
+
+                foreach (var resource in pair.Value.Keys)
+                {
+                    var rTree = new Tree($"([dim italic]{resource.ResourceType}[/]) [bold]{resource.Name}[/]");
+                    pair.Value[resource].ToList().ForEach(o => rTree.AddNode(o.GetMarkup()));
+
+                    rgTree.AddNode(rTree);
+                }
+
+                subTree.AddNode(rgTree);
+            }
+
+            tree.AddNode(subTree);
+        }
+
+        AnsiConsole.Write(new Markup("[bold]Audit Rule Outputs[/]").Centered());
+        AnsiConsole.WriteLine();
+        AnsiConsole.Write(tree);
+        AnsiConsole.WriteLine();
+
+        return Task.CompletedTask;
+    }
+
+    public override Task WriteNetworking(ResourceSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> data)
+    {
+        WriteRuleOutputTree(data);
         return Task.CompletedTask;
     }
 }

@@ -11,11 +11,11 @@ public enum Level
     Critical = 3
 }
 
-public interface IRuleOutput<T> where T : Resource
+public interface IRuleOutput
 {
     public Level Level { get; }
     public string Message { get; }
-    public T Resource { get; }
+    public Resource Resource { get; }
 
     public Markup GetMarkup();
 }

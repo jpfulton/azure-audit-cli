@@ -10,20 +10,20 @@ public class OpenInboundPortsRule : IRule<NetworkSecurityGroup>
     private static readonly List<int> DISALLOWED_UDP_PORTS = ParseRange(DISALLOWED_UDP_PORTS_RANGE);
     private static readonly List<int> DISALLOWED_TCP_PORTS = ParseRange(DISALLOWED_TCP_PORTS_RANGE);
 
-    public IEnumerable<IRuleOutput<NetworkSecurityGroup>> Evaluate(NetworkSecurityGroup resource)
+    public IEnumerable<IRuleOutput> Evaluate(NetworkSecurityGroup resource)
     {
-        var outputs = new List<IRuleOutput<NetworkSecurityGroup>>();
+        var outputs = new List<IRuleOutput>();
 
         outputs.AddRange(EvaluateSecurityRules(resource));
 
         return outputs;
     }
 
-    private IEnumerable<IRuleOutput<NetworkSecurityGroup>> EvaluateSecurityRules(
+    private IEnumerable<IRuleOutput> EvaluateSecurityRules(
         NetworkSecurityGroup resource
     )
     {
-        var outputs = new List<IRuleOutput<NetworkSecurityGroup>>();
+        var outputs = new List<IRuleOutput>();
 
         outputs.AddRange(EvaluateOpenAndUnfiltered(resource));
         outputs.AddRange(EvaluateOpenAndFiltered(resource));
@@ -31,11 +31,11 @@ public class OpenInboundPortsRule : IRule<NetworkSecurityGroup>
         return outputs;
     }
 
-    private static IEnumerable<IRuleOutput<NetworkSecurityGroup>> EvaluateOpenAndUnfiltered(
+    private static IEnumerable<IRuleOutput> EvaluateOpenAndUnfiltered(
         NetworkSecurityGroup resource
         )
     {
-        var outputs = new List<IRuleOutput<NetworkSecurityGroup>>();
+        var outputs = new List<IRuleOutput>();
 
         resource.SecurityRules
             .Where(r =>
@@ -57,7 +57,7 @@ public class OpenInboundPortsRule : IRule<NetworkSecurityGroup>
                 var protocol = Enum.GetName(rule.Protocol);
                 var message = $"Open and unfiltered {protocol} port(s): {rule.DestinationPortRange} found.";
 
-                outputs.Add(new DefaultRuleOutput<NetworkSecurityGroup>(
+                outputs.Add(new DefaultRuleOutput(
                     level,
                     message,
                     resource
@@ -67,11 +67,11 @@ public class OpenInboundPortsRule : IRule<NetworkSecurityGroup>
         return outputs;
     }
 
-    private static IEnumerable<IRuleOutput<NetworkSecurityGroup>> EvaluateOpenAndFiltered(
+    private static IEnumerable<IRuleOutput> EvaluateOpenAndFiltered(
         NetworkSecurityGroup resource
         )
     {
-        var outputs = new List<IRuleOutput<NetworkSecurityGroup>>();
+        var outputs = new List<IRuleOutput>();
 
         resource.SecurityRules
             .Where(r =>
@@ -86,7 +86,7 @@ public class OpenInboundPortsRule : IRule<NetworkSecurityGroup>
                 var protocol = Enum.GetName(rule.Protocol);
                 var message = $"Open and filtered {protocol} port(s): {rule.DestinationPortRange} found.";
 
-                outputs.Add(new DefaultRuleOutput<NetworkSecurityGroup>(
+                outputs.Add(new DefaultRuleOutput(
                     level,
                     message,
                     resource
