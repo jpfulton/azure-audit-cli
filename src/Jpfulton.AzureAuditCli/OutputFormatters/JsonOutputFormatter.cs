@@ -14,13 +14,13 @@ namespace Jpfulton.AzureAuditCli.OutputFormatters;
 
 public class JsonOutputFormatter : BaseOutputFormatter
 {
-    public override Task WriteNetworkInterfaceCards(NetworkInterfaceCardsSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput<NetworkInterfaceCard>>>>> data)
+    public override Task WriteNetworkInterfaceCards(NetworkInterfaceCardsSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> data)
     {
         WriteJson(FlattenRuleOutputs(data));
         return Task.CompletedTask;
     }
 
-    public override Task WriteNetworkSecurityGroups(NetworkSecurityGroupsSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput<NetworkSecurityGroup>>>>> data)
+    public override Task WriteNetworkSecurityGroups(NetworkSecurityGroupsSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> data)
     {
         WriteJson(FlattenRuleOutputs(data));
         return Task.CompletedTask;
@@ -37,9 +37,9 @@ public class JsonOutputFormatter : BaseOutputFormatter
         return Task.CompletedTask;
     }
 
-    private static List<FlattenedRuleOutput> FlattenRuleOutputs<TResource>(
-        Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput<TResource>>>>> data
-    ) where TResource : Resource
+    private static List<FlattenedRuleOutput> FlattenRuleOutputs(
+        Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> data
+    )
     {
         var output = new List<FlattenedRuleOutput>();
 

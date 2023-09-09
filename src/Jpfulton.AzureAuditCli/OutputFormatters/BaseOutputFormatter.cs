@@ -15,7 +15,7 @@ public abstract class BaseOutputFormatter
         Dictionary<
             Subscription, Dictionary<
                 ResourceGroup, Dictionary<
-                    Resource, List<IRuleOutput<NetworkInterfaceCard>>
+                    Resource, List<IRuleOutput>
                 >
             >
         > data
@@ -25,7 +25,7 @@ public abstract class BaseOutputFormatter
         Dictionary<
             Subscription, Dictionary<
                 ResourceGroup, Dictionary<
-                    Resource, List<IRuleOutput<NetworkSecurityGroup>>
+                    Resource, List<IRuleOutput>
                 >
             >
         > data

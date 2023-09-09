@@ -4,27 +4,27 @@ namespace Jpfulton.AzureAuditCli.Rules.Networking.NetworkSecurityGroups;
 
 public class UnattachedRule : IRule<NetworkSecurityGroup>
 {
-    public IEnumerable<IRuleOutput<NetworkSecurityGroup>> Evaluate(NetworkSecurityGroup resource)
+    public IEnumerable<IRuleOutput> Evaluate(NetworkSecurityGroup resource)
     {
-        var outputs = new List<IRuleOutput<NetworkSecurityGroup>>();
+        var outputs = new List<IRuleOutput>();
 
         outputs.AddRange(EvaluateUnattachedToNic(resource));
 
         return outputs;
     }
 
-    private static IEnumerable<IRuleOutput<NetworkSecurityGroup>> EvaluateUnattachedToNic(
+    private static IEnumerable<IRuleOutput> EvaluateUnattachedToNic(
         NetworkSecurityGroup resource
         )
     {
-        var outputs = new List<IRuleOutput<NetworkSecurityGroup>>();
+        var outputs = new List<IRuleOutput>();
 
         if (resource.NetworkInterfaces.Count == 0)
         {
             var level = Level.Info;
             var message = $"No network interfaces are attached.";
 
-            outputs.Add(new DefaultRuleOutput<NetworkSecurityGroup>(
+            outputs.Add(new DefaultRuleOutput(
                 level,
                 message,
                 resource

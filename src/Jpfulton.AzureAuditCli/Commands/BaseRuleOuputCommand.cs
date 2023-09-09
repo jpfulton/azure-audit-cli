@@ -19,15 +19,10 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
                 new Markup($"[bold]Version:[/] {typeof(BaseRuleOutputCommand<TSettings, TResource>).Assembly.GetName().Version}\n")
                 );
 
-        var jmesQuery = $"[?type == `{GetAzureType()}`]";
-        var data = new Dictionary<
-            Subscription, Dictionary<ResourceGroup, List<Resource>>
-        >();
-
         var outputData = new Dictionary<
             Subscription, Dictionary<
                 ResourceGroup, Dictionary<
-                    Resource, List<IRuleOutput<TResource>>
+                    Resource, List<IRuleOutput>
                 >
             >
         >();
@@ -57,7 +52,8 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
                 var rulesTask = ctx.AddTask("[green]Evaluating rules[/]", new ProgressTaskSettings { AutoStart = false });
 
                 var subscriptions = await SubscriptionHelpers.GetSubscriptionsAsync(settings, subscriptionsTask);
-                await SubscriptionHelpers.GetResourceGroupsAsync(data, rgTask, subscriptions, true, jmesQuery);
+
+                var data = await GetResourceDataAsync(rgTask, subscriptions);
 
                 outputData = EvaluateRulesAndBuildOutputData(data, rulesTask);
             }
@@ -68,10 +64,26 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
         return 0;
     }
 
-    private static Dictionary<
+    public virtual async Task<Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>>>
+        GetResourceDataAsync(
+            ProgressTask rgTask,
+            List<Subscription> subscriptions
+            )
+    {
+        var data = new Dictionary<
+            Subscription, Dictionary<ResourceGroup, List<Resource>>
+        >();
+
+        var jmesQuery = $"[?type == `{GetAzureType()}`]";
+        await SubscriptionHelpers.GetResourceGroupsAsync(data, rgTask, subscriptions, true, jmesQuery);
+
+        return data;
+    }
+
+    private Dictionary<
         Subscription, Dictionary<
             ResourceGroup, Dictionary<
-                Resource, List<IRuleOutput<TResource>>
+                Resource, List<IRuleOutput>
             >
         >
     > EvaluateRulesAndBuildOutputData(
@@ -89,7 +101,7 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
         var outputData = new Dictionary<
                     Subscription, Dictionary<
                         ResourceGroup, Dictionary<
-                            Resource, List<IRuleOutput<TResource>>
+                            Resource, List<IRuleOutput>
                         >
                     >
                 >();
@@ -98,19 +110,19 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
         {
             var rgToResources = new Dictionary<
                 ResourceGroup, Dictionary<
-                    Resource, List<IRuleOutput<TResource>>
+                    Resource, List<IRuleOutput>
                 >
             >();
 
             data[sub].Keys.ToList().ForEach(rg =>
             {
                 var resourceToRuleOutputs = new Dictionary<
-                    Resource, List<IRuleOutput<TResource>>
+                    Resource, List<IRuleOutput>
                     >();
 
                 data[sub][rg].ForEach(r =>
                 {
-                    var ruleOutputs = RuleEvaluator<TResource>.Evaluate(r);
+                    IEnumerable<IRuleOutput> ruleOutputs = EvaluateRules(r);
                     resourceToRuleOutputs.Add(r, ruleOutputs.ToList());
 
                     progressTask.Increment(progressIncrement * ruleCount);
@@ -124,6 +136,11 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
 
         progressTask.StopTask();
         return outputData;
+    }
+
+    protected virtual IEnumerable<IRuleOutput> EvaluateRules(Resource r)
+    {
+        return RuleEvaluator<TResource>.Evaluate(r);
     }
 
     private static int GetResourceCount(Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> data)
@@ -147,7 +164,7 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
         Dictionary<
             Subscription, Dictionary<
                 ResourceGroup, Dictionary<
-                    Resource, List<IRuleOutput<TResource>>
+                    Resource, List<IRuleOutput>
                 >
             >
         > outputData

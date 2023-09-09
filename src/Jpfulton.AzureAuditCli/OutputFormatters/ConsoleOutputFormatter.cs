@@ -16,7 +16,7 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
         Dictionary<
             Subscription, Dictionary<
                 ResourceGroup, Dictionary<
-                    Resource, List<IRuleOutput<NetworkInterfaceCard>>
+                    Resource, List<IRuleOutput>
                 >
             >
         > data
@@ -30,7 +30,7 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
         Dictionary<
             Subscription, Dictionary<
                 ResourceGroup, Dictionary<
-                    Resource, List<IRuleOutput<NetworkSecurityGroup>>
+                    Resource, List<IRuleOutput>
                 >
             >
         > data
@@ -107,15 +107,15 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
         return Task.CompletedTask;
     }
 
-    private static Task WriteRuleOutputTree<T>(
+    private static Task WriteRuleOutputTree(
         Dictionary<
             Subscription, Dictionary<
                 ResourceGroup, Dictionary<
-                    Resource, List<IRuleOutput<T>>
+                    Resource, List<IRuleOutput>
                 >
             >
         > data
-    ) where T : Resource
+    )
     {
         var tree = new Tree("[bold]Subscriptions[/]");
 

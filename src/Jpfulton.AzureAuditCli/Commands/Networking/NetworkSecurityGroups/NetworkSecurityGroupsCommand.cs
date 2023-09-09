@@ -13,7 +13,7 @@ public class NetworkSecurityGroupsCommand
         return AzureResourceType.NetworkSecurityGroup;
     }
 
-    protected override Task WriteOutput(NetworkSecurityGroupsSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput<NetworkSecurityGroup>>>>> outputData)
+    protected override Task WriteOutput(NetworkSecurityGroupsSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> outputData)
     {
         return OutputFormattersCollection.Formatters[settings.Output]
             .WriteNetworkSecurityGroups(settings, outputData);

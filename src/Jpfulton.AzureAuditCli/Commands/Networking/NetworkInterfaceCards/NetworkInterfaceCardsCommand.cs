@@ -13,7 +13,7 @@ public class NetworkInterfaceCardsCommand
         return AzureResourceType.NetworkInterfaceCard;
     }
 
-    protected override Task WriteOutput(NetworkInterfaceCardsSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput<NetworkInterfaceCard>>>>> outputData)
+    protected override Task WriteOutput(NetworkInterfaceCardsSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> outputData)
     {
         return OutputFormattersCollection.Formatters[settings.Output]
             .WriteNetworkInterfaceCards(settings, outputData);
