@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Jpfulton.AzureAuditCli.Commands;
 using Jpfulton.AzureAuditCli.Commands.Networking.NetworkInterfaceCards;
 using Jpfulton.AzureAuditCli.Commands.Networking.NetworkSecurityGroups;
 using Jpfulton.AzureAuditCli.Commands.Resources;
@@ -88,6 +89,12 @@ public class JsonOutputFormatter : BaseOutputFormatter
             .NullColor(Color.Green)
         );
         AnsiConsole.WriteLine();
+    }
+
+    public override Task WriteNetworking(ResourceSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> data)
+    {
+        WriteJson(FlattenRuleOutputs(data));
+        return Task.CompletedTask;
     }
 }
 

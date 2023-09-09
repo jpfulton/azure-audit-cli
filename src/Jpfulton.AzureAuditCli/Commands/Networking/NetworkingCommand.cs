@@ -1,6 +1,8 @@
 using Jpfulton.AzureAuditCli.Commands.Networking.NetworkInterfaceCards;
 using Jpfulton.AzureAuditCli.Commands.Networking.NetworkSecurityGroups;
 using Jpfulton.AzureAuditCli.Models;
+using Jpfulton.AzureAuditCli.Models.Networking;
+using Jpfulton.AzureAuditCli.OutputFormatters;
 using Jpfulton.AzureAuditCli.Rules;
 using Spectre.Console;
 
@@ -27,9 +29,20 @@ public class NetworkingCommand : BaseRuleOutputCommand<ResourceSettings, Resourc
         throw new NotImplementedException();
     }
 
+    protected override IEnumerable<IRuleOutput> EvaluateRules(Resource r)
+    {
+        if (r is NetworkInterfaceCard)
+            return RuleEvaluator<NetworkInterfaceCard>.Evaluate(r);
+        else if (r is NetworkSecurityGroup)
+            return RuleEvaluator<NetworkSecurityGroup>.Evaluate(r);
+        else
+            return new List<IRuleOutput>();
+    }
+
     protected override Task WriteOutput(ResourceSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> outputData)
     {
-        throw new NotImplementedException();
+        return OutputFormattersCollection.Formatters[settings.Output]
+            .WriteNetworking(settings, outputData);
     }
 
     private static Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> MergeData(
