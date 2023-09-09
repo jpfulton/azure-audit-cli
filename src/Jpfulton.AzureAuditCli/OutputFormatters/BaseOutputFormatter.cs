@@ -24,7 +24,7 @@ public abstract class BaseOutputFormatter
         );
 
     public abstract Task WriteNetworkInterfaceCards(
-        NetworkInterfaceCardsSettings settings,
+        ResourceSettings settings,
         Dictionary<
             Subscription, Dictionary<
                 ResourceGroup, Dictionary<
@@ -33,8 +33,9 @@ public abstract class BaseOutputFormatter
             >
         > data
         );
+
     public abstract Task WriteNetworkSecurityGroups(
-        NetworkSecurityGroupsSettings settings,
+        ResourceSettings settings,
         Dictionary<
             Subscription, Dictionary<
                 ResourceGroup, Dictionary<
@@ -43,10 +44,12 @@ public abstract class BaseOutputFormatter
             >
         > data
         );
+
     public abstract Task WriteResources(
         ResourcesSettings settings,
         Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> data
         );
+
     public abstract Task WriteSubscriptions(
         SubscriptionsSettings settings,
         Subscription[] subscriptions

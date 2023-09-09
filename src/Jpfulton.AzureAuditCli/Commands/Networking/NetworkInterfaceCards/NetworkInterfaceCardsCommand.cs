@@ -6,14 +6,14 @@ using Jpfulton.AzureAuditCli.Rules;
 namespace Jpfulton.AzureAuditCli.Commands.Networking.NetworkInterfaceCards;
 
 public class NetworkInterfaceCardsCommand
-    : BaseRuleOutputCommand<NetworkInterfaceCardsSettings, NetworkInterfaceCard>
+    : BaseRuleOutputCommand<ResourceSettings, NetworkInterfaceCard>
 {
     protected override string GetAzureType()
     {
         return AzureResourceType.NetworkInterfaceCard;
     }
 
-    protected override Task WriteOutput(NetworkInterfaceCardsSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> outputData)
+    protected override Task WriteOutput(ResourceSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> outputData)
     {
         return OutputFormattersCollection.Formatters[settings.Output]
             .WriteNetworkInterfaceCards(settings, outputData);

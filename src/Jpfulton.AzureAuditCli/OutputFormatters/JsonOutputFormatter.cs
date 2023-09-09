@@ -1,12 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Jpfulton.AzureAuditCli.Commands;
-using Jpfulton.AzureAuditCli.Commands.Networking.NetworkInterfaceCards;
-using Jpfulton.AzureAuditCli.Commands.Networking.NetworkSecurityGroups;
 using Jpfulton.AzureAuditCli.Commands.Resources;
 using Jpfulton.AzureAuditCli.Commands.Subscriptions;
 using Jpfulton.AzureAuditCli.Models;
-using Jpfulton.AzureAuditCli.Models.Networking;
 using Jpfulton.AzureAuditCli.Rules;
 using Spectre.Console;
 using Spectre.Console.Json;
@@ -15,13 +12,13 @@ namespace Jpfulton.AzureAuditCli.OutputFormatters;
 
 public class JsonOutputFormatter : BaseOutputFormatter
 {
-    public override Task WriteNetworkInterfaceCards(NetworkInterfaceCardsSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> data)
+    public override Task WriteNetworkInterfaceCards(ResourceSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> data)
     {
         WriteJson(FlattenRuleOutputs(data));
         return Task.CompletedTask;
     }
 
-    public override Task WriteNetworkSecurityGroups(NetworkSecurityGroupsSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> data)
+    public override Task WriteNetworkSecurityGroups(ResourceSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> data)
     {
         WriteJson(FlattenRuleOutputs(data));
         return Task.CompletedTask;

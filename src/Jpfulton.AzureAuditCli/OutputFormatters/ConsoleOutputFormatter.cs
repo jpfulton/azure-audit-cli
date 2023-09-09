@@ -1,10 +1,7 @@
 using Jpfulton.AzureAuditCli.Commands;
-using Jpfulton.AzureAuditCli.Commands.Networking.NetworkInterfaceCards;
-using Jpfulton.AzureAuditCli.Commands.Networking.NetworkSecurityGroups;
 using Jpfulton.AzureAuditCli.Commands.Resources;
 using Jpfulton.AzureAuditCli.Commands.Subscriptions;
 using Jpfulton.AzureAuditCli.Models;
-using Jpfulton.AzureAuditCli.Models.Networking;
 using Jpfulton.AzureAuditCli.Rules;
 using Spectre.Console;
 
@@ -13,7 +10,7 @@ namespace Jpfulton.AzureAuditCli.OutputFormatters;
 public class ConsoleOutputFormatter : BaseOutputFormatter
 {
     public override Task WriteNetworkInterfaceCards(
-        NetworkInterfaceCardsSettings settings,
+        ResourceSettings settings,
         Dictionary<
             Subscription, Dictionary<
                 ResourceGroup, Dictionary<
@@ -27,7 +24,7 @@ public class ConsoleOutputFormatter : BaseOutputFormatter
     }
 
     public override Task WriteNetworkSecurityGroups(
-        NetworkSecurityGroupsSettings settings,
+        ResourceSettings settings,
         Dictionary<
             Subscription, Dictionary<
                 ResourceGroup, Dictionary<
