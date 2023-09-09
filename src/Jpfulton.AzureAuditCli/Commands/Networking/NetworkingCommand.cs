@@ -59,15 +59,15 @@ public class NetworkingCommand : BaseRuleOutputCommand<ResourceSettings, Resourc
                 {
                     var resourceList = result[sub][rg];
 
-                    if (output.ContainsKey(sub))
+                    if (output.TryGetValue(sub, out var rgDictionary))
                     {
-                        if (output[sub].ContainsKey(rg))
+                        if (output[sub].TryGetValue(rg, out var rList))
                         {
-                            output[sub][rg].AddRange(resourceList);
+                            rList.AddRange(resourceList);
                         }
                         else
                         {
-                            output[sub].Add(rg, resourceList);
+                            rgDictionary.Add(rg, resourceList);
                         }
                     }
                     else
