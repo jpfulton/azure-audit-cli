@@ -13,4 +13,8 @@ public abstract class BaseSettings : CommandSettings
     [CommandOption("-o|--output")]
     [Description("The output format to use. Defaults to Console (Console)")]
     public OutputFormat Output { get; set; } = OutputFormat.Console;
+
+    [CommandOption("--query")]
+    [Description("JMESPath query string, applicable for the Json output only. See http://jmespath.org/ for more information and examples.")]
+    public string Query { get; set; } = string.Empty;
 }

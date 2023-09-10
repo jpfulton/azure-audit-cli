@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using DevLab.JmesPath;
 using Jpfulton.AzureAuditCli.Commands;
 using Jpfulton.AzureAuditCli.Commands.Resources;
 using Jpfulton.AzureAuditCli.Commands.Subscriptions;
@@ -14,7 +15,7 @@ public class JsonOutputFormatter : BaseOutputFormatter
 {
     public override Task WriteRuleOutputs(ResourceSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> data)
     {
-        WriteJson(FlattenRuleOutputs(data));
+        WriteJson(settings, FlattenRuleOutputs(data));
         return Task.CompletedTask;
     }
 
@@ -25,7 +26,7 @@ public class JsonOutputFormatter : BaseOutputFormatter
 
     public override Task WriteSubscriptions(SubscriptionsSettings settings, Subscription[] subscriptions)
     {
-        WriteJson(subscriptions);
+        WriteJson(settings, subscriptions);
         return Task.CompletedTask;
     }
 
@@ -58,7 +59,7 @@ public class JsonOutputFormatter : BaseOutputFormatter
         return output;
     }
 
-    private void WriteJson(object data)
+    private void WriteJson(BaseSettings settings, object data)
     {
         var options = new JsonSerializerOptions()
         {
@@ -68,6 +69,12 @@ public class JsonOutputFormatter : BaseOutputFormatter
         options.Converters.Add(new LevelJsonConverter());
 
         var json = JsonSerializer.Serialize(data, options);
+
+        if (!string.IsNullOrWhiteSpace(settings.Query))
+        {
+            var jmesPath = new JmesPath();
+            json = jmesPath.Transform(json, settings.Query);
+        }
 
         AnsiConsole.Write(new JsonText(json)
             .BracesColor(Color.Red)
