@@ -10,5 +10,6 @@ public static class OutputFormattersCollection
     {
         Formatters.Add(OutputFormat.Console, new ConsoleOutputFormatter());
         Formatters.Add(OutputFormat.Json, new JsonOutputFormatter());
+        Formatters.Add(OutputFormat.Markdown, new MarkdownOutputFormatter());
     }
 }
