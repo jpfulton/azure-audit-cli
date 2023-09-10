@@ -93,9 +93,7 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
     )
     {
         var resourceCount = GetResourceCount(data);
-        var ruleCount = RuleEvaluator<TResource>.RuleCount;
-        var totalRuleRuns = resourceCount * ruleCount;
-        var progressIncrement = 100.0 / totalRuleRuns;
+        var progressIncrement = 100.0 / resourceCount;
 
         progressTask.StartTask();
 
@@ -126,7 +124,7 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
                     IEnumerable<IRuleOutput> ruleOutputs = EvaluateRules(r);
                     resourceToRuleOutputs.Add(r, ruleOutputs.ToList());
 
-                    progressTask.Increment(progressIncrement * ruleCount);
+                    progressTask.Increment(progressIncrement * resourceCount);
                 });
 
                 rgToResources.Add(rg, resourceToRuleOutputs);
