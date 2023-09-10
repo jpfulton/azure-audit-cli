@@ -1,4 +1,5 @@
 using Jpfulton.AzureAuditCli.Models;
+using Jpfulton.AzureAuditCli.OutputFormatters;
 using Jpfulton.AzureAuditCli.Rules;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -92,9 +93,7 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
     )
     {
         var resourceCount = GetResourceCount(data);
-        var ruleCount = RuleEvaluator<TResource>.RuleCount;
-        var totalRuleRuns = resourceCount * ruleCount;
-        var progressIncrement = 100.0 / totalRuleRuns;
+        var progressIncrement = 100.0 / resourceCount;
 
         progressTask.StartTask();
 
@@ -125,7 +124,7 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
                     IEnumerable<IRuleOutput> ruleOutputs = EvaluateRules(r);
                     resourceToRuleOutputs.Add(r, ruleOutputs.ToList());
 
-                    progressTask.Increment(progressIncrement * ruleCount);
+                    progressTask.Increment(progressIncrement * resourceCount);
                 });
 
                 rgToResources.Add(rg, resourceToRuleOutputs);
@@ -159,7 +158,7 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
 
     protected abstract string GetAzureType();
 
-    protected abstract Task WriteOutput(
+    protected virtual Task WriteOutput(
         TSettings settings,
         CommandContext commandContext,
         Dictionary<
@@ -169,5 +168,9 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
                 >
             >
         > outputData
-    );
+    )
+    {
+        return OutputFormattersCollection.Formatters[settings.Output]
+            .WriteRuleOutputs(settings, commandContext, outputData);
+    }
 }

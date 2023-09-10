@@ -1,6 +1,8 @@
 using System.Text.Json;
 using Jpfulton.AzureAuditCli.Infrastructure;
 using Jpfulton.AzureAuditCli.Models.Networking;
+using Jpfulton.AzureAuditCli.Models.Storage;
+using Microsoft.VisualBasic;
 
 namespace Jpfulton.AzureAuditCli.Models;
 
@@ -9,6 +11,7 @@ public static class ResourceParser
     private static readonly Dictionary<string, Type> typeMap = new()
     {
         {AzureResourceType.IpConfiguration, typeof(IpConfiguration)},
+        {AzureResourceType.ManagedDisk, typeof(ManagedDisk)},
         {AzureResourceType.NetworkInterfaceCard, typeof(NetworkInterfaceCard)},
         {AzureResourceType.NetworkSecurityGroup, typeof(NetworkSecurityGroup)},
         {AzureResourceType.SecurityRule, typeof(SecurityRule)}
@@ -77,6 +80,9 @@ public static class ResourceParser
         {
             case AzureResourceType.IpConfiguration:
                 return ParseIpConfiguration(resource, element);
+
+            case AzureResourceType.ManagedDisk:
+                return ParseManagedDisk(resource, element);
 
             case AzureResourceType.NetworkInterfaceCard:
                 return await ParseNetworkInterfaceCardAsync(resource, element);
@@ -192,5 +198,32 @@ public static class ResourceParser
         }
 
         return config;
+    }
+
+    private static ManagedDisk ParseManagedDisk(Resource resource, JsonElement element)
+    {
+        var disk = resource as ManagedDisk ?? throw new ArgumentException("Resource is not of correct Type.", "resource");
+
+        disk.ManagedBy = element.GetStringPropertyValue("managedBy");
+
+        if (
+            element.TryGetProperty("properties", out JsonElement propsElement) &&
+            propsElement.ValueKind != JsonValueKind.Null
+            )
+        {
+            disk.DataAccessAuthMode = Enum.TryParse<DataAccessAuthMode>(propsElement.GetStringPropertyValue("dataAccessAuthMode", false), out var authType) ? authType : null;
+            disk.DiskSizeGB = propsElement.GetIntegerPropertyValue("diskSizeGB") ?? 0;
+            disk.DiskState = Enum.Parse<DiskState>(propsElement.GetStringPropertyValue("diskState"));
+            disk.NetworkAccessPolicy = Enum.Parse<NetworkAccessPolicy>(propsElement.GetStringPropertyValue("networkAccessPolicy"));
+            disk.OsType = Enum.TryParse<OsType>(propsElement.GetStringPropertyValue("osType", false), out var osType) ? osType : null;
+            disk.PublicNetworkAccess = Enum.Parse<PublicNetworkAccess>(propsElement.GetStringPropertyValue("publicNetworkAccess"));
+
+            if (propsElement.TryGetProperty("encryption", out var encryptionElement))
+            {
+                disk.EncryptionType = Enum.Parse<EncryptionType>(encryptionElement.GetStringPropertyValue("type"));
+            }
+        }
+
+        return disk;
     }
 }
