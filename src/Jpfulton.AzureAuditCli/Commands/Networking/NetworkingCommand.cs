@@ -5,6 +5,7 @@ using Jpfulton.AzureAuditCli.Models.Networking;
 using Jpfulton.AzureAuditCli.OutputFormatters;
 using Jpfulton.AzureAuditCli.Rules;
 using Spectre.Console;
+using Spectre.Console.Cli;
 
 namespace Jpfulton.AzureAuditCli.Commands.Networking;
 
@@ -43,10 +44,10 @@ public class NetworkingCommand : BaseRuleOutputCommand<ResourceSettings, Resourc
             return new List<IRuleOutput>();
     }
 
-    protected override Task WriteOutput(ResourceSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> outputData)
+    protected override Task WriteOutput(ResourceSettings settings, CommandContext commandContext, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> outputData)
     {
         return OutputFormattersCollection.Formatters[settings.Output]
-            .WriteRuleOutputs(settings, outputData);
+            .WriteRuleOutputs(settings, commandContext, outputData);
     }
 
     private static Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> MergeData(

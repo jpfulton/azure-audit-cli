@@ -59,7 +59,7 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
             }
         );
 
-        await WriteOutput(settings, outputData);
+        await WriteOutput(settings, context, outputData);
 
         return 0;
     }
@@ -161,6 +161,7 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
 
     protected abstract Task WriteOutput(
         TSettings settings,
+        CommandContext commandContext,
         Dictionary<
             Subscription, Dictionary<
                 ResourceGroup, Dictionary<

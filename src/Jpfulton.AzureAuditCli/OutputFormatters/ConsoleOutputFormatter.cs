@@ -4,12 +4,17 @@ using Jpfulton.AzureAuditCli.Commands.Subscriptions;
 using Jpfulton.AzureAuditCli.Models;
 using Jpfulton.AzureAuditCli.Rules;
 using Spectre.Console;
+using Spectre.Console.Cli;
 
 namespace Jpfulton.AzureAuditCli.OutputFormatters;
 
 public class ConsoleOutputFormatter : BaseOutputFormatter
 {
-    public override Task WriteRuleOutputs(ResourceSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> data)
+    public override Task WriteRuleOutputs(
+        ResourceSettings settings,
+        CommandContext commandContext,
+        Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> data
+        )
     {
         return WriteRuleOutputTree(data);
     }
