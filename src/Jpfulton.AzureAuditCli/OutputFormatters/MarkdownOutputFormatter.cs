@@ -50,52 +50,109 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
             .OrderBy(s => s.DisplayName)
             .ToList()
             .ForEach(subscription =>
-        {
-            output.AppendLine($"## {subscription.DisplayName}");
-            output.AppendLine();
-
-            data[subscription].Keys
-                .Where(rg => data[subscription][rg].Values.Any(l => l.Count > 0))
-                .OrderBy(rg => rg.Name)
-                .ToList()
-                .ForEach(resourceGroup =>
             {
-                output.AppendLine($"### {resourceGroup.Name}");
+                var subscriptionData = data[subscription];
+                var subscriptionResourceCount = GetSubscriptionResourceCount(subscriptionData);
+                var subscriptionTotalFindings = GetSubscriptionTotalFindingsCount(subscriptionData);
+
+                output.AppendLine($"## {subscription.DisplayName} ({subscription.SubscriptionId})");
                 output.AppendLine();
 
-                output.AppendLine("|---|---|---|---|");
-                output.Append("| Resource Type ");
-                output.Append("| Name ");
-                output.Append("| Level ");
-                output.Append("| Message ");
-                output.Append("|\n");
+                output.AppendLine($"- Total resource groups: {subscriptionData.Keys.Count}");
+                output.AppendLine($"- Total evaluated resources: {subscriptionResourceCount}");
+                output.AppendLine($"- Total rule findings: {subscriptionTotalFindings}");
+                output.AppendLine();
 
-                data[subscription][resourceGroup].Keys
-                    .Where(r => data[subscription][resourceGroup][r].Count > 0)
-                    .OrderBy(r => r.ResourceType)
-                    .ThenBy(r => r.Name)
+                subscriptionData.Keys
+                    .Where(rg => subscriptionData[rg].Values.Any(l => l.Count > 0))
+                    .OrderBy(rg => rg.Name)
                     .ToList()
-                    .ForEach(resource =>
-                {
-                    data[subscription][resourceGroup][resource]
-                        .OrderByDescending(o => o.Level)
-                        .ThenBy(o => o.Message)
-                        .ToList()
-                        .ForEach(ruleOutput =>
+                    .ForEach(resourceGroup =>
                     {
-                        output.Append($"| *{resource.ResourceType}* ");
-                        output.Append($"| **{resource.Name}** ");
-                        output.Append($"| [{Enum.GetName(ruleOutput.Level)}] ");
-                        output.Append($"| {ruleOutput.Message} ");
-                        output.Append("|\n");
-                    });
-                });
+                        var resourceGroupData = subscriptionData[resourceGroup];
+                        var resourceCount = resourceGroupData.Keys.Count;
 
-                output.AppendLine();
+                        var resourcesWithFindingsCount = 0;
+                        var totalFindings = 0;
+                        resourceGroupData.Keys.ToList().ForEach(r =>
+                        {
+                            var resourceGroupFindings = resourceGroupData[r].Count;
+
+                            resourcesWithFindingsCount += resourceGroupFindings > 0 ? 1 : 0;
+                            totalFindings += resourceGroupFindings;
+                        });
+
+                        output.AppendLine($"### {resourceGroup.Name}");
+                        output.AppendLine();
+
+                        output.AppendLine($"- Location: {resourceGroup.Location}");
+                        output.AppendLine($"- Total evaluated resources: {resourceCount}");
+                        output.AppendLine($"- Total resources with rule findings: {resourcesWithFindingsCount}");
+                        output.AppendLine($"- Total rule findings: {totalFindings}");
+                        output.AppendLine();
+
+                        output.AppendLine("|---|---|---|---|");
+                        output.Append("| Resource Type ");
+                        output.Append("| Name ");
+                        output.Append("| Level ");
+                        output.Append("| Message ");
+                        output.Append("|\n");
+
+                        resourceGroupData.Keys
+                        .Where(r => resourceGroupData[r].Count > 0)
+                        .OrderBy(r => r.ResourceType)
+                        .ThenBy(r => r.Name)
+                        .ToList()
+                        .ForEach(resource =>
+                        {
+                            resourceGroupData[resource]
+                            .OrderByDescending(o => o.Level)
+                            .ThenBy(o => o.Message)
+                            .ToList()
+                            .ForEach(ruleOutput =>
+                            {
+                                output.Append($"| *{resource.ResourceType}* ");
+                                output.Append($"| **{resource.Name}** ");
+                                output.Append($"| [{Enum.GetName(ruleOutput.Level)}] ");
+                                output.Append($"| {ruleOutput.Message} ");
+                                output.Append("|\n");
+                            });
+                        });
+
+                        output.AppendLine();
+                    });
             });
-        });
         output.AppendLine();
 
-        Console.WriteLine(output.ToString());
+        Console.WriteLine(output);
+    }
+
+    private static int GetSubscriptionResourceCount(
+        Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>> subscriptionData
+        )
+    {
+        var subscriptionResourceCount = 0;
+        subscriptionData.Keys.ToList().ForEach(rg =>
+        {
+            subscriptionResourceCount += subscriptionData[rg].Keys.Count;
+        });
+        return subscriptionResourceCount;
+    }
+
+    private static int GetSubscriptionTotalFindingsCount(
+        Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>> subscriptionData
+        )
+    {
+        var totalFindingsCount = 0;
+        subscriptionData.Keys.ToList().ForEach(rg =>
+        {
+            subscriptionData[rg].Keys
+                .ToList()
+                .ForEach(r =>
+                {
+                    totalFindingsCount += subscriptionData[rg][r].Count;
+                });
+        });
+        return totalFindingsCount;
     }
 }
