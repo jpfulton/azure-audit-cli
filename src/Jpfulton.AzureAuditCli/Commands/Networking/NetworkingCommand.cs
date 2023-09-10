@@ -5,6 +5,7 @@ using Jpfulton.AzureAuditCli.Models.Networking;
 using Jpfulton.AzureAuditCli.OutputFormatters;
 using Jpfulton.AzureAuditCli.Rules;
 using Spectre.Console;
+using Spectre.Console.Cli;
 
 namespace Jpfulton.AzureAuditCli.Commands.Networking;
 
@@ -12,14 +13,18 @@ public class NetworkingCommand : BaseRuleOutputCommand<ResourceSettings, Resourc
 {
     public override async Task<Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>>>
         GetResourceDataAsync(
-            ProgressTask rgTask,
+            ProgressTask? rgTask,
             List<Subscription> subscriptions
         )
     {
-        var nicDataTask = new NetworkInterfaceCardsCommand().GetResourceDataAsync(rgTask, subscriptions);
-        var nsgDataTask = new NetworkSecurityGroupsCommand().GetResourceDataAsync(rgTask, subscriptions);
+        if (rgTask != null) rgTask.IsIndeterminate = true;
+        rgTask?.StartTask();
+
+        var nicDataTask = new NetworkInterfaceCardsCommand().GetResourceDataAsync(null, subscriptions);
+        var nsgDataTask = new NetworkSecurityGroupsCommand().GetResourceDataAsync(null, subscriptions);
 
         await Task.WhenAll(nicDataTask, nsgDataTask);
+        rgTask?.StopTask();
 
         return MergeData(nicDataTask.Result, nsgDataTask.Result);
     }
@@ -39,10 +44,10 @@ public class NetworkingCommand : BaseRuleOutputCommand<ResourceSettings, Resourc
             return new List<IRuleOutput>();
     }
 
-    protected override Task WriteOutput(ResourceSettings settings, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> outputData)
+    protected override Task WriteOutput(ResourceSettings settings, CommandContext commandContext, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> outputData)
     {
         return OutputFormattersCollection.Formatters[settings.Output]
-            .WriteNetworking(settings, outputData);
+            .WriteRuleOutputs(settings, commandContext, outputData);
     }
 
     private static Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> MergeData(

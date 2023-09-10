@@ -1,4 +1,5 @@
-﻿using Jpfulton.AzureAuditCli.Commands.Networking;
+﻿using System.Runtime.CompilerServices;
+using Jpfulton.AzureAuditCli.Commands.Networking;
 using Jpfulton.AzureAuditCli.Commands.Networking.NetworkInterfaceCards;
 using Jpfulton.AzureAuditCli.Commands.Networking.NetworkSecurityGroups;
 using Jpfulton.AzureAuditCli.Commands.Resources;
@@ -35,6 +36,14 @@ app.Configure(config =>
 
     config.AddCommand<SubscriptionsCommand>("subscriptions")
         .WithDescription("List subscriptions accessible with the current Azure CLI login.");
+
+    config.AddExample(
+        "networking",
+        "--output",
+        "Json",
+        "--query",
+        "[].{resourceName: Resource.Name, level: Level, message: Message}"
+        );
 
     config.ValidateExamples();
 });

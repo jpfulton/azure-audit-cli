@@ -1,41 +1,17 @@
 using Jpfulton.AzureAuditCli.Commands;
-using Jpfulton.AzureAuditCli.Commands.Networking.NetworkInterfaceCards;
-using Jpfulton.AzureAuditCli.Commands.Networking.NetworkSecurityGroups;
 using Jpfulton.AzureAuditCli.Commands.Resources;
 using Jpfulton.AzureAuditCli.Commands.Subscriptions;
 using Jpfulton.AzureAuditCli.Models;
-using Jpfulton.AzureAuditCli.Models.Networking;
 using Jpfulton.AzureAuditCli.Rules;
+using Spectre.Console.Cli;
 
 namespace Jpfulton.AzureAuditCli.OutputFormatters;
 
 public abstract class BaseOutputFormatter
 {
-
-    public abstract Task WriteNetworking(
+    public abstract Task WriteRuleOutputs(
         ResourceSettings settings,
-        Dictionary<
-            Subscription, Dictionary<
-                ResourceGroup, Dictionary<
-                    Resource, List<IRuleOutput>
-                >
-            >
-        > data
-        );
-
-    public abstract Task WriteNetworkInterfaceCards(
-        ResourceSettings settings,
-        Dictionary<
-            Subscription, Dictionary<
-                ResourceGroup, Dictionary<
-                    Resource, List<IRuleOutput>
-                >
-            >
-        > data
-        );
-
-    public abstract Task WriteNetworkSecurityGroups(
-        ResourceSettings settings,
+        CommandContext commandContext,
         Dictionary<
             Subscription, Dictionary<
                 ResourceGroup, Dictionary<

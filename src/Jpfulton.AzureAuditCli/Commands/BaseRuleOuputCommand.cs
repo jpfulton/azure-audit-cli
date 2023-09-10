@@ -59,14 +59,14 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
             }
         );
 
-        await WriteOutput(settings, outputData);
+        await WriteOutput(settings, context, outputData);
 
         return 0;
     }
 
     public virtual async Task<Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>>>
         GetResourceDataAsync(
-            ProgressTask rgTask,
+            ProgressTask? rgTask,
             List<Subscription> subscriptions
             )
     {
@@ -161,6 +161,7 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
 
     protected abstract Task WriteOutput(
         TSettings settings,
+        CommandContext commandContext,
         Dictionary<
             Subscription, Dictionary<
                 ResourceGroup, Dictionary<

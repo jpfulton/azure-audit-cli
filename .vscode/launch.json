@@ -13,7 +13,8 @@
         "program": "${workspaceFolder}/src/Jpfulton.AzureAuditCli/bin/Debug/net7.0/Jpfulton.AzureAuditCli.dll",
         "args": [
           "networking",
-          "--debug"
+          "--output",
+          "Markdown"
         ],
         "cwd": "${workspaceFolder}/src",
         // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
