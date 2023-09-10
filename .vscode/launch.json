@@ -14,9 +14,7 @@
         "args": [
           "networking",
           "--output",
-          "Json",
-          "--query",
-          "[].{resourceName: Resource.Name, level: Level, message: Message}"
+          "Markdown"
         ],
         "cwd": "${workspaceFolder}/src",
         // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
