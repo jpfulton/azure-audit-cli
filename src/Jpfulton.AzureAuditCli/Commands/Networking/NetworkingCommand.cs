@@ -12,14 +12,18 @@ public class NetworkingCommand : BaseRuleOutputCommand<ResourceSettings, Resourc
 {
     public override async Task<Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>>>
         GetResourceDataAsync(
-            ProgressTask rgTask,
+            ProgressTask? rgTask,
             List<Subscription> subscriptions
         )
     {
-        var nicDataTask = new NetworkInterfaceCardsCommand().GetResourceDataAsync(rgTask, subscriptions);
-        var nsgDataTask = new NetworkSecurityGroupsCommand().GetResourceDataAsync(rgTask, subscriptions);
+        if (rgTask != null) rgTask.IsIndeterminate = true;
+        rgTask?.StartTask();
+
+        var nicDataTask = new NetworkInterfaceCardsCommand().GetResourceDataAsync(null, subscriptions);
+        var nsgDataTask = new NetworkSecurityGroupsCommand().GetResourceDataAsync(null, subscriptions);
 
         await Task.WhenAll(nicDataTask, nsgDataTask);
+        rgTask?.StopTask();
 
         return MergeData(nicDataTask.Result, nsgDataTask.Result);
     }

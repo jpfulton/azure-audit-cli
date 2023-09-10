@@ -66,7 +66,7 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
 
     public virtual async Task<Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>>>
         GetResourceDataAsync(
-            ProgressTask rgTask,
+            ProgressTask? rgTask,
             List<Subscription> subscriptions
             )
     {

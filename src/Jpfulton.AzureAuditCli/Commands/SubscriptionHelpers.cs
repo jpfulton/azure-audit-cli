@@ -33,7 +33,7 @@ public static class SubscriptionHelpers
                 ResourceGroup, List<Resource>
             >
         > data,
-        ProgressTask rgTask,
+        ProgressTask? rgTask,
         List<Subscription> subscriptions,
         bool fetchFullResource = false,
         string? jmesQuery = null
@@ -43,7 +43,7 @@ public static class SubscriptionHelpers
         var subscriptionCounter = 0;
         var rgProgressIncrement = 100.0 / subscriptionCount;
 
-        rgTask.StartTask();
+        rgTask?.StartTask();
         foreach (var sub in subscriptions)
         {
             var groups = await AzCommand.GetAzureResourceGroupsAsync(Guid.Parse(sub.SubscriptionId));
@@ -52,9 +52,9 @@ public static class SubscriptionHelpers
             data.Add(sub, groupToResourcesForSubscription);
 
             subscriptionCounter += 1;
-            rgTask.Increment(rgProgressIncrement * subscriptionCounter);
+            rgTask?.Increment(rgProgressIncrement * subscriptionCounter);
         }
-        rgTask.StopTask();
+        rgTask?.StopTask();
     }
 
     public static async Task<Dictionary<ResourceGroup, List<Resource>>> GetResourcesAsync(
