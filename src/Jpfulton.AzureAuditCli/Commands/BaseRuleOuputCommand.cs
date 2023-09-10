@@ -1,4 +1,5 @@
 using Jpfulton.AzureAuditCli.Models;
+using Jpfulton.AzureAuditCli.OutputFormatters;
 using Jpfulton.AzureAuditCli.Rules;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -159,7 +160,7 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
 
     protected abstract string GetAzureType();
 
-    protected abstract Task WriteOutput(
+    protected virtual Task WriteOutput(
         TSettings settings,
         CommandContext commandContext,
         Dictionary<
@@ -169,5 +170,9 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
                 >
             >
         > outputData
-    );
+    )
+    {
+        return OutputFormattersCollection.Formatters[settings.Output]
+            .WriteRuleOutputs(settings, commandContext, outputData);
+    }
 }

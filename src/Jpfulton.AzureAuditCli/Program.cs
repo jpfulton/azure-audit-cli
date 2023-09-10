@@ -3,6 +3,7 @@ using Jpfulton.AzureAuditCli.Commands.Networking;
 using Jpfulton.AzureAuditCli.Commands.Networking.NetworkInterfaceCards;
 using Jpfulton.AzureAuditCli.Commands.Networking.NetworkSecurityGroups;
 using Jpfulton.AzureAuditCli.Commands.Resources;
+using Jpfulton.AzureAuditCli.Commands.Storage.ManagedDisks;
 using Jpfulton.AzureAuditCli.Commands.Subscriptions;
 using Jpfulton.AzureAuditCli.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +22,9 @@ app.Configure(config =>
 #if DEBUG
     config.PropagateExceptions();
 #endif
+
+    config.AddCommand<ManagedDisksCommand>("disks")
+        .WithDescription("Audit managed disks in subscriptions accessible with the current Azure CLI login.");
 
     config.AddCommand<NetworkingCommand>("networking")
         .WithDescription("Audit networking resources in subscriptions accessible with the current Azure CLI login.");

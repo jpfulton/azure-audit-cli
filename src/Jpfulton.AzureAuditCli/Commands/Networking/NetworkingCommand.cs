@@ -44,12 +44,6 @@ public class NetworkingCommand : BaseRuleOutputCommand<ResourceSettings, Resourc
             return new List<IRuleOutput>();
     }
 
-    protected override Task WriteOutput(ResourceSettings settings, CommandContext commandContext, Dictionary<Subscription, Dictionary<ResourceGroup, Dictionary<Resource, List<IRuleOutput>>>> outputData)
-    {
-        return OutputFormattersCollection.Formatters[settings.Output]
-            .WriteRuleOutputs(settings, commandContext, outputData);
-    }
-
     private static Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> MergeData(
         params Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>>[] data
         )
