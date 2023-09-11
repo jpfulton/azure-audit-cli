@@ -8,7 +8,7 @@ public class OAuthRule : IRule<StorageAccount>
     {
         var outputs = new List<IRuleOutput>();
 
-        if (resource.DefaultToOAuthAuthentication == true)
+        if (resource.DefaultToOAuthAuthentication)
         {
             outputs.Add(new DefaultRuleOutput(
                 Level.Info,

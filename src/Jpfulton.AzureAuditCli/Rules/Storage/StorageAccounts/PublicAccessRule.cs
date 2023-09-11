@@ -8,7 +8,7 @@ public class PublicAccessRule : IRule<StorageAccount>
     {
         var outputs = new List<IRuleOutput>();
 
-        if (resource.AllowBlobPublicAccess == true)
+        if (resource.AllowBlobPublicAccess)
         {
             outputs.Add(new DefaultRuleOutput(
                 Level.Warn,

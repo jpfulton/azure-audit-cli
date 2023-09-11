@@ -8,7 +8,7 @@ public class InfrastructureEncryptionRule : IRule<StorageAccount>
     {
         var outputs = new List<IRuleOutput>();
 
-        if (resource.RequireInfrastructureEncryption == true)
+        if (resource.RequireInfrastructureEncryption)
         {
             outputs.Add(new DefaultRuleOutput(
                 Level.Info,

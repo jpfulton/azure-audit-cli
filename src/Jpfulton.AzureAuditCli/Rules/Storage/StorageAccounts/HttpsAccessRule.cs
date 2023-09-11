@@ -8,7 +8,7 @@ public class HttpsAccessRule : IRule<StorageAccount>
     {
         var outputs = new List<IRuleOutput>();
 
-        if (resource.SupportsHttpsTrafficOnly == false)
+        if (!resource.SupportsHttpsTrafficOnly)
         {
             outputs.Add(new DefaultRuleOutput(
                 Level.Warn,
