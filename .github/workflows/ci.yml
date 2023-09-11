@@ -92,7 +92,7 @@ jobs:
 
   tag-release-and-publish:
     name: "Tag, Release and Publish"
-    needs: [analyze, compile]
+    needs: [compile]
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
@@ -137,7 +137,7 @@ jobs:
 
       - name: Push NuGet Package to GitHub Repository
         run: |
-          dotnet nuget push ./nupkgs/*.nupkg --api-key ${GITHUB_TOKEN} --source "https://nuget.pkg.github.com/jpfulton/index.json"
+          dotnet nuget push ./nupkgs/*.nupkg --api-key $GITHUB_TOKEN --source "https://nuget.pkg.github.com/jpfulton/index.json"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
