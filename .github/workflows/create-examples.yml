@@ -51,6 +51,12 @@ jobs:
       - name: "Run Audit CLI on All Resources"
         run: azure-audit all --output Markdown > ./examples/all-resources.md
 
+      - name: "Run Audit CLI on Networking Resources"
+        run: azure-audit all --output Markdown > ./examples/networking-resources.md
+
+      - name: "Run Audit CLI on Storage Resources"
+        run: azure-audit all --output Markdown > ./examples/storage-resources.md
+
       - name: "Configure Git"
         run: |
           git config user.name jpfulton

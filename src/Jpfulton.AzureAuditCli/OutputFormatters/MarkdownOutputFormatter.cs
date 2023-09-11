@@ -43,6 +43,7 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
         output.AppendLine();
         output.AppendLine($"> Rendered on: {DateTime.Now.ToString("f", CultureInfo.CreateSpecificCulture("en-US"))} <br/>");
         output.AppendLine($"> Using command: azure-audit {commandContext.Name} <br/>");
+        output.AppendLine($"> Version: {GetVersion()} <br/>");
         output.AppendLine("> Resource groups and resources without rule findings will be omitted.");
         output.AppendLine();
 
@@ -93,10 +94,8 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
 
                         output.Append("| Resource Type ");
                         output.Append("| Name ");
-                        output.Append("| Level ");
-                        output.Append("| Message ");
                         output.Append("|\n");
-                        output.AppendLine("|---|---|---|---|");
+                        output.AppendLine("|---|---|");
 
                         resourceGroupData.Keys
                         .Where(r => resourceGroupData[r].Count > 0)
@@ -105,17 +104,20 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
                         .ToList()
                         .ForEach(resource =>
                         {
+                            output.Append($"| *{resource.ResourceType}* ");
+                            output.Append($"| **{resource.Name}** ");
+                            output.Append("|\n");
+
                             resourceGroupData[resource]
                             .OrderByDescending(o => o.Level)
                             .ThenBy(o => o.Message)
                             .ToList()
                             .ForEach(ruleOutput =>
                             {
-                                output.Append($"| *{resource.ResourceType}* ");
-                                output.Append($"| **{resource.Name}** ");
-                                output.Append($"| [{Enum.GetName(ruleOutput.Level)}] ");
-                                output.Append($"| {ruleOutput.Message} ");
-                                output.Append("|\n");
+                                output.Append("<td colspan=\"2\">");
+                                output.Append($"- [{Enum.GetName(ruleOutput.Level)}] ");
+                                output.Append($"{ruleOutput.Message} ");
+                                output.Append("</td>\n");
                             });
                         });
 
@@ -154,5 +156,10 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
                 });
         });
         return totalFindingsCount;
+    }
+
+    private static string GetVersion()
+    {
+        return typeof(MarkdownOutputFormatter).Assembly.GetName().Version!.ToString();
     }
 }
