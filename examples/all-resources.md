@@ -1,9 +1,7 @@
-[38;5;2mGetting subscriptions[0m: 0%
-[38;5;2mGetting resources[0m: 0%
 # Audit Rule Outputs
 
-> Rendered on: Monday, September 11, 2023 6:48 PM
-> Using command: azure-audit all
+> Rendered on: Monday, September 11, 2023 9:10 PM <br/>
+> Using command: azure-audit all <br/>
 > Resource groups and resources without rule findings will be omitted.
 
 ## JPF Pay-As-You-Go (4913be3f-a345-4652-9bba-767418dd25e3)
@@ -19,8 +17,8 @@
 - Total resources with rule findings: 1
 - Total rule findings: 6
 
-|---|---|---|---|
 | Resource Type | Name | Level | Message |
+|---|---|---|---|
 | *Microsoft.Storage/storageAccounts* | **cs2100300008c8d894b** | [Note] | Storage account Blob service is enabled. |
 | *Microsoft.Storage/storageAccounts* | **cs2100300008c8d894b** | [Note] | Storage account Dfs service is enabled. |
 | *Microsoft.Storage/storageAccounts* | **cs2100300008c8d894b** | [Note] | Storage account File service is enabled. |
@@ -35,8 +33,8 @@
 - Total resources with rule findings: 8
 - Total rule findings: 20
 
-|---|---|---|---|
 | Resource Type | Name | Level | Message |
+|---|---|---|---|
 | *Microsoft.Compute/disks* | **backup-data-disk** | [Note] | Managed disk is encrypted at rest using EncryptionAtRestWithPlatformKey. |
 | *Microsoft.Compute/disks* | **linux-dev_OsDisk** | [Warn] | Managed disk is configured for public network access and an allow all network access policy with no data access authorization policy. It may be enabled for export at anytime. |
 | *Microsoft.Compute/disks* | **linux-dev_OsDisk** | [Note] | Managed disk is encrypted at rest using EncryptionAtRestWithPlatformKey. |
@@ -65,8 +63,8 @@
 - Total resources with rule findings: 2
 - Total rule findings: 12
 
-|---|---|---|---|
 | Resource Type | Name | Level | Message |
+|---|---|---|---|
 | *Microsoft.Storage/storageAccounts* | **personalsiteapipreview** | [Warn] | Storage account allows public access. |
 | *Microsoft.Storage/storageAccounts* | **personalsiteapipreview** | [Info] | Storage account defaults to OAuth authentication. |
 | *Microsoft.Storage/storageAccounts* | **personalsiteapipreview** | [Note] | Storage account Blob service is enabled. |
