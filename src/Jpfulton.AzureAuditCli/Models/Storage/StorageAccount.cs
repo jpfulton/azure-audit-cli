@@ -34,5 +34,11 @@ public class StorageAccount : Resource
     public KeyType? EncryptionServicesTableKeyType { get; set; }
     public TlsVersion MinimumTlsVersion { get; set; } = TlsVersion.TLS1_0;
     public bool RequireInfrastructureEncryption { get; set; }
+    public bool ServicesBlobEnabled { get; set; }
+    public bool ServicesDfsEnabled { get; set; }
+    public bool ServicesFileEnabled { get; set; }
+    public bool ServicesQueueEnabled { get; set; }
+    public bool ServicesTableEnabled { get; set; }
+    public bool ServicesWebEnabled { get; set; }
     public bool SupportsHttpsTrafficOnly { get; set; }
 }

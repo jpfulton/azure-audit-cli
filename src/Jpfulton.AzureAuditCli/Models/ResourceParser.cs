@@ -276,6 +276,45 @@ public static class ResourceParser
                 }
 
                 account.MinimumTlsVersion = Enum.Parse<TlsVersion>(propsElement.GetStringPropertyValue("minimumTlsVersion"));
+
+                if (propsElement.TryGetProperty("primaryEndpoints", out var primaryEndpointsElement))
+                {
+                    if (primaryEndpointsElement.TryGetProperty("blob", out _))
+                    {
+                        account.ServicesBlobEnabled = true;
+                    }
+
+                    if (primaryEndpointsElement.TryGetProperty("blob", out _))
+                    {
+                        account.ServicesBlobEnabled = true;
+                    }
+
+                    if (primaryEndpointsElement.TryGetProperty("dfs", out _))
+                    {
+                        account.ServicesDfsEnabled = true;
+                    }
+
+                    if (primaryEndpointsElement.TryGetProperty("file", out _))
+                    {
+                        account.ServicesFileEnabled = true;
+                    }
+
+                    if (primaryEndpointsElement.TryGetProperty("queue", out _))
+                    {
+                        account.ServicesQueueEnabled = true;
+                    }
+
+                    if (primaryEndpointsElement.TryGetProperty("table", out _))
+                    {
+                        account.ServicesTableEnabled = true;
+                    }
+
+                    if (primaryEndpointsElement.TryGetProperty("web", out _))
+                    {
+                        account.ServicesWebEnabled = true;
+                    }
+                }
+
                 account.SupportsHttpsTrafficOnly = propsElement.GetBooleanPropertyValue("supportsHttpsTrafficOnly") ?? false;
             }
         }
