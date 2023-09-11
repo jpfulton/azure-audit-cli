@@ -250,30 +250,6 @@ public static class ResourceParser
                 account.EncryptionKeySource = Enum.Parse<KeySource>(encryptionElement.GetStringPropertyValue("keySource").Replace(".", ""));
                 account.RequireInfrastructureEncryption = encryptionElement.GetBooleanPropertyValue("requireInfrastructureEncryption", false) ?? false;
 
-                if (encryptionElement.TryGetProperty("networkAcls", out var networkAclsElement))
-                {
-                    var acls = new NetworkAcls
-                    {
-                        Bypass = networkAclsElement.GetStringPropertyValue("bypass"),
-                        DefaultAction = Enum.Parse<NetworkAclAction>(networkAclsElement.GetStringPropertyValue("defaultAction"))
-                    };
-
-                    if (networkAclsElement.TryGetProperty("ipRules", out var ipRulesElement))
-                    {
-                        acls.IpRulesCount = ipRulesElement.GetArrayLength();
-                    }
-
-                    if (networkAclsElement.TryGetProperty("ipv6Rules", out var ipv6RulesElement))
-                    {
-                        acls.IpV6RulesCount = ipv6RulesElement.GetArrayLength();
-                    }
-
-                    if (networkAclsElement.TryGetProperty("virtualNetworkRules", out var vnetRulesElement))
-                    {
-                        acls.VirtualNetworkRulesCount = vnetRulesElement.GetArrayLength();
-                    }
-                }
-
                 if (encryptionElement.TryGetProperty("services", out var servicesElement))
                 {
                     if (servicesElement.TryGetProperty("blob", out var blobElement))
@@ -299,6 +275,32 @@ public static class ResourceParser
                         account.EncryptionServicesTableEnabled = tableElement.GetBooleanPropertyValue("enabled") ?? false;
                         account.EncryptionServicesTableKeyType = Enum.Parse<KeyType>(tableElement.GetStringPropertyValue("keyType"));
                     }
+                }
+
+                if (propsElement.TryGetProperty("networkAcls", out var networkAclsElement))
+                {
+                    var acls = new NetworkAcls
+                    {
+                        Bypass = networkAclsElement.GetStringPropertyValue("bypass"),
+                        DefaultAction = Enum.Parse<NetworkAclAction>(networkAclsElement.GetStringPropertyValue("defaultAction"))
+                    };
+
+                    if (networkAclsElement.TryGetProperty("ipRules", out var ipRulesElement))
+                    {
+                        acls.IpRulesCount = ipRulesElement.GetArrayLength();
+                    }
+
+                    if (networkAclsElement.TryGetProperty("ipv6Rules", out var ipv6RulesElement))
+                    {
+                        acls.IpV6RulesCount = ipv6RulesElement.GetArrayLength();
+                    }
+
+                    if (networkAclsElement.TryGetProperty("virtualNetworkRules", out var vnetRulesElement))
+                    {
+                        acls.VirtualNetworkRulesCount = vnetRulesElement.GetArrayLength();
+                    }
+
+                    account.NetworkAcls = acls;
                 }
 
                 account.MinimumTlsVersion = Enum.Parse<TlsVersion>(propsElement.GetStringPropertyValue("minimumTlsVersion"));
@@ -334,6 +336,11 @@ public static class ResourceParser
                     {
                         account.ServicesWebEnabled = true;
                     }
+                }
+
+                if (propsElement.TryGetProperty("privateEndpointConnections", out var pecsElement))
+                {
+                    account.PrivateEndpointConnectionsCount = pecsElement.GetArrayLength();
                 }
 
                 account.SupportsHttpsTrafficOnly = propsElement.GetBooleanPropertyValue("supportsHttpsTrafficOnly") ?? false;

@@ -44,6 +44,7 @@ public class StorageAccount : Resource
     public Kind Kind { get; set; }
     public NetworkAcls? NetworkAcls { get; set; }
     public TlsVersion MinimumTlsVersion { get; set; } = TlsVersion.TLS1_0;
+    public int PrivateEndpointConnectionsCount { get; set; }
     public bool RequireInfrastructureEncryption { get; set; }
     public bool ServicesBlobEnabled { get; set; }
     public bool ServicesDfsEnabled { get; set; }
