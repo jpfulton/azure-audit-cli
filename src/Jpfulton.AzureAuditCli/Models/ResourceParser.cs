@@ -246,6 +246,7 @@ public static class ResourceParser
             if (propsElement.TryGetProperty("encryption", out var encryptionElement))
             {
                 account.EncryptionKeySource = Enum.Parse<KeySource>(encryptionElement.GetStringPropertyValue("keySource").Replace(".", ""));
+                account.RequireInfrastructureEncryption = encryptionElement.GetBooleanPropertyValue("requireInfrastructureEncryption", false) ?? false;
 
                 if (encryptionElement.TryGetProperty("services", out var servicesElement))
                 {
