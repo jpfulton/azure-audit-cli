@@ -131,10 +131,15 @@ jobs:
         run: |
           dotnet nuget push ./nupkgs/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
 
-      - name: Push NuGet Package to GitHub Repository
+      - name: Add NuGet GitHub Repository
         run: |
           dotnet nuget add source --username jpfulton --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/jpfulton/index.json"
-          dotnet nuget push ./nupkgs/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "github"
+
+      - name: Push NuGet Package to GitHub Repository
+        run: |
+          dotnet nuget push ./nupkgs/*.nupkg --api-key ${GITHUB_TOKEN} --source "https://nuget.pkg.github.com/jpfulton/index.json"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Archive Build Outputs
         run: |
