@@ -235,6 +235,8 @@ public static class ResourceParser
     {
         var account = resource as StorageAccount ?? throw new ArgumentException("Resource is not of correct Type.", "resource");
 
+        account.Kind = Enum.Parse<Kind>(element.GetStringPropertyValue("kind"));
+
         if (
             element.TryGetProperty("properties", out JsonElement propsElement) &&
             propsElement.ValueKind != JsonValueKind.Null
@@ -247,6 +249,30 @@ public static class ResourceParser
             {
                 account.EncryptionKeySource = Enum.Parse<KeySource>(encryptionElement.GetStringPropertyValue("keySource").Replace(".", ""));
                 account.RequireInfrastructureEncryption = encryptionElement.GetBooleanPropertyValue("requireInfrastructureEncryption", false) ?? false;
+
+                if (encryptionElement.TryGetProperty("networkAcls", out var networkAclsElement))
+                {
+                    var acls = new NetworkAcls
+                    {
+                        Bypass = networkAclsElement.GetStringPropertyValue("bypass"),
+                        DefaultAction = Enum.Parse<NetworkAclAction>(networkAclsElement.GetStringPropertyValue("defaultAction"))
+                    };
+
+                    if (networkAclsElement.TryGetProperty("ipRules", out var ipRulesElement))
+                    {
+                        acls.IpRulesCount = ipRulesElement.GetArrayLength();
+                    }
+
+                    if (networkAclsElement.TryGetProperty("ipv6Rules", out var ipv6RulesElement))
+                    {
+                        acls.IpV6RulesCount = ipv6RulesElement.GetArrayLength();
+                    }
+
+                    if (networkAclsElement.TryGetProperty("virtualNetworkRules", out var vnetRulesElement))
+                    {
+                        acls.VirtualNetworkRulesCount = vnetRulesElement.GetArrayLength();
+                    }
+                }
 
                 if (encryptionElement.TryGetProperty("services", out var servicesElement))
                 {
@@ -279,11 +305,6 @@ public static class ResourceParser
 
                 if (propsElement.TryGetProperty("primaryEndpoints", out var primaryEndpointsElement))
                 {
-                    if (primaryEndpointsElement.TryGetProperty("blob", out _))
-                    {
-                        account.ServicesBlobEnabled = true;
-                    }
-
                     if (primaryEndpointsElement.TryGetProperty("blob", out _))
                     {
                         account.ServicesBlobEnabled = true;

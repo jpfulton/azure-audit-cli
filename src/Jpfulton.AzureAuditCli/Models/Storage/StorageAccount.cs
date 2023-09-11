@@ -1,5 +1,14 @@
 namespace Jpfulton.AzureAuditCli.Models.Storage;
 
+public enum Kind
+{
+    BlobStorage,
+    BlockBlobStorage,
+    FileStorage,
+    Storage,
+    StorageV2
+}
+
 public enum TlsVersion
 {
     TLS1_0,
@@ -32,6 +41,8 @@ public class StorageAccount : Resource
     public KeyType? EncryptionServicesQueueKeyType { get; set; }
     public bool? EncryptionServicesTableEnabled { get; set; }
     public KeyType? EncryptionServicesTableKeyType { get; set; }
+    public Kind Kind { get; set; }
+    public NetworkAcls? NetworkAcls { get; set; }
     public TlsVersion MinimumTlsVersion { get; set; } = TlsVersion.TLS1_0;
     public bool RequireInfrastructureEncryption { get; set; }
     public bool ServicesBlobEnabled { get; set; }
@@ -41,4 +52,19 @@ public class StorageAccount : Resource
     public bool ServicesTableEnabled { get; set; }
     public bool ServicesWebEnabled { get; set; }
     public bool SupportsHttpsTrafficOnly { get; set; }
+}
+
+public enum NetworkAclAction
+{
+    Allow,
+    Deny
+}
+
+public class NetworkAcls
+{
+    public string Bypass { get; set; } = string.Empty;
+    public NetworkAclAction DefaultAction { get; set; } = NetworkAclAction.Allow;
+    public int IpRulesCount { get; set; }
+    public int IpV6RulesCount { get; set; }
+    public int VirtualNetworkRulesCount { get; set; }
 }
