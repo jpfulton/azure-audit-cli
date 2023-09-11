@@ -138,7 +138,7 @@ jobs:
 
       - name: Push NuGet Package to GitHub Repository
         run: |
-          dotnet nuget push ./nupkgs/*.nupkg --api-key ${{ secrets.GH_PACKAGE_PUSH_PAT }} --source "https://nuget.pkg.github.com/jpfulton/index.json"
+          dotnet nuget push ./nupkgs/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/jpfulton/index.json"
 
       - name: Archive Build Outputs
         run: |

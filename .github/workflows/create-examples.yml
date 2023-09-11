@@ -24,11 +24,6 @@ jobs:
       - name: "Checkout GitHub Action"
         uses: actions/checkout@v3
 
-      - name: "Login via Azure CLI"
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.azure-sp-credentials }}
-
       - name: "Setup DotNet Environment"
         uses: actions/setup-dotnet@v3
         with:
@@ -47,6 +42,11 @@ jobs:
       - name: "Install Latest azure-audit-cli Tool from MS Nuget"
         if: (inputs.use_version == null)
         run: dotnet tool install --global azure-audit-cli
+
+      - name: "Login via Azure CLI"
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.azure-sp-credentials }}
 
       - name: "Run Audit CLI on All Resources"
         run: azure-audit all --output Markdown > ./examples/all-resources.md
