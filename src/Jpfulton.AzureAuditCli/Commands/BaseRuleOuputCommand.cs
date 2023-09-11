@@ -6,9 +6,10 @@ using Spectre.Console.Cli;
 
 namespace Jpfulton.AzureAuditCli.Commands;
 
-public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand<TSettings>
-    where TSettings : ResourceSettings
-    where TResource : Resource
+public abstract class BaseRuleOutputCommand<TSettings, TResource>
+    : AsyncCommand<TSettings>, IRuleOutputCommand
+        where TSettings : ResourceSettings
+        where TResource : Resource
 {
     public override async Task<int> ExecuteAsync(
         CommandContext context,
@@ -137,7 +138,7 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
         return outputData;
     }
 
-    protected virtual IEnumerable<IRuleOutput> EvaluateRules(Resource r)
+    public virtual IEnumerable<IRuleOutput> EvaluateRules(Resource r)
     {
         return RuleEvaluator<TResource>.Evaluate(r);
     }
@@ -172,5 +173,44 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand
     {
         return OutputFormattersCollection.Formatters[settings.Output]
             .WriteRuleOutputs(settings, commandContext, outputData);
+    }
+
+    protected static Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> MergeData(
+        params Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>>[] data
+        )
+    {
+        var output = new Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>>();
+
+        foreach (var result in data)
+        {
+            result.Keys.ToList().ForEach(sub =>
+            {
+                result[sub].Keys.ToList().ForEach(rg =>
+                {
+                    var resourceList = result[sub][rg];
+
+                    if (output.TryGetValue(sub, out var rgDictionary))
+                    {
+                        if (output[sub].TryGetValue(rg, out var rList))
+                        {
+                            rList.AddRange(resourceList);
+                        }
+                        else
+                        {
+                            rgDictionary.Add(rg, resourceList);
+                        }
+                    }
+                    else
+                    {
+                        output.Add(sub, new Dictionary<ResourceGroup, List<Resource>>()
+                        {
+                            {rg, resourceList}
+                        });
+                    }
+                });
+            });
+        }
+
+        return output;
     }
 }
