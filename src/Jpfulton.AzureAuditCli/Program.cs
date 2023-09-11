@@ -20,9 +20,9 @@ app.Configure(config =>
 {
     config.SetApplicationName("azure-audit");
 
-#if DEBUG
+    //#if DEBUG
     config.PropagateExceptions();
-#endif
+    //#endif
 
     config.AddCommand<AllRulesCommand>("all")
         .WithDescription("Audit all resources in subscriptions accessible with the current Azure CLI login.");
