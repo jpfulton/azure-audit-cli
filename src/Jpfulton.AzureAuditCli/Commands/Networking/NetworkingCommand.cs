@@ -34,7 +34,7 @@ public class NetworkingCommand : BaseRuleOutputCommand<ResourceSettings, Resourc
         throw new NotImplementedException();
     }
 
-    protected override IEnumerable<IRuleOutput> EvaluateRules(Resource r)
+    public override IEnumerable<IRuleOutput> EvaluateRules(Resource r)
     {
         if (r is NetworkInterfaceCard)
             return RuleEvaluator<NetworkInterfaceCard>.Evaluate(r);
@@ -42,44 +42,5 @@ public class NetworkingCommand : BaseRuleOutputCommand<ResourceSettings, Resourc
             return RuleEvaluator<NetworkSecurityGroup>.Evaluate(r);
         else
             return new List<IRuleOutput>();
-    }
-
-    private static Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> MergeData(
-        params Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>>[] data
-        )
-    {
-        var output = new Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>>();
-
-        foreach (var result in data)
-        {
-            result.Keys.ToList().ForEach(sub =>
-            {
-                result[sub].Keys.ToList().ForEach(rg =>
-                {
-                    var resourceList = result[sub][rg];
-
-                    if (output.TryGetValue(sub, out var rgDictionary))
-                    {
-                        if (output[sub].TryGetValue(rg, out var rList))
-                        {
-                            rList.AddRange(resourceList);
-                        }
-                        else
-                        {
-                            rgDictionary.Add(rg, resourceList);
-                        }
-                    }
-                    else
-                    {
-                        output.Add(sub, new Dictionary<ResourceGroup, List<Resource>>()
-                        {
-                            {rg, resourceList}
-                        });
-                    }
-                });
-            });
-        }
-
-        return output;
     }
 }

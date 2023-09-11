@@ -1,8 +1,9 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Jpfulton.AzureAuditCli.Commands;
 using Jpfulton.AzureAuditCli.Commands.Networking;
 using Jpfulton.AzureAuditCli.Commands.Networking.NetworkInterfaceCards;
 using Jpfulton.AzureAuditCli.Commands.Networking.NetworkSecurityGroups;
 using Jpfulton.AzureAuditCli.Commands.Resources;
+using Jpfulton.AzureAuditCli.Commands.Storage;
 using Jpfulton.AzureAuditCli.Commands.Storage.ManagedDisks;
 using Jpfulton.AzureAuditCli.Commands.Subscriptions;
 using Jpfulton.AzureAuditCli.Infrastructure;
@@ -23,6 +24,9 @@ app.Configure(config =>
     config.PropagateExceptions();
 #endif
 
+    config.AddCommand<AllRulesCommand>("all")
+        .WithDescription("Audit all resources in subscriptions accessible with the current Azure CLI login.");
+
     config.AddCommand<ManagedDisksCommand>("disks")
         .WithDescription("Audit managed disks in subscriptions accessible with the current Azure CLI login.");
 
@@ -38,11 +42,14 @@ app.Configure(config =>
     config.AddCommand<ResourcesCommand>("resources")
         .WithDescription("List resources in subscriptions accessible with the current Azure CLI login.");
 
-    config.AddCommand<SubscriptionsCommand>("subscriptions")
-        .WithDescription("List subscriptions accessible with the current Azure CLI login.");
+    config.AddCommand<StorageCommand>("storage")
+        .WithDescription("Audit storage resources in subscriptions accessible with the current Azure CLI login.");
 
     config.AddCommand<StorageAccountsCommand>("storageAccounts")
         .WithDescription("Audit storage accounts in subscriptions accessible with the current Azure CLI login.");
+
+    config.AddCommand<SubscriptionsCommand>("subscriptions")
+        .WithDescription("List subscriptions accessible with the current Azure CLI login.");
 
     config.AddExample(
         "networking",
