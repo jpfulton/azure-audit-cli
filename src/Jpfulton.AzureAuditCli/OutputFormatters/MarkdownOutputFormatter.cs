@@ -41,8 +41,8 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
 
         output.AppendLine("# Audit Rule Outputs");
         output.AppendLine();
-        output.AppendLine($"> Rendered on: {DateTime.Now.ToString("f", CultureInfo.CreateSpecificCulture("en-US"))}");
-        output.AppendLine($"> Using command: azure-audit {commandContext.Name}");
+        output.AppendLine($"> Rendered on: {DateTime.Now.ToString("f", CultureInfo.CreateSpecificCulture("en-US"))} <br/>");
+        output.AppendLine($"> Using command: azure-audit {commandContext.Name} <br/>");
         output.AppendLine("> Resource groups and resources without rule findings will be omitted.");
         output.AppendLine();
 
@@ -91,12 +91,12 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
                         output.AppendLine($"- Total rule findings: {totalFindings}");
                         output.AppendLine();
 
-                        output.AppendLine("|---|---|---|---|");
                         output.Append("| Resource Type ");
                         output.Append("| Name ");
                         output.Append("| Level ");
                         output.Append("| Message ");
                         output.Append("|\n");
+                        output.AppendLine("|---|---|---|---|");
 
                         resourceGroupData.Keys
                         .Where(r => resourceGroupData[r].Count > 0)

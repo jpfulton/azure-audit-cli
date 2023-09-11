@@ -8,12 +8,13 @@ public static class SubscriptionHelpers
 {
     public static async Task<List<Subscription>> GetSubscriptionsAsync(
         ResourceSettings settings,
-        ProgressTask subscriptionsTask
+        ProgressTask? subscriptionsTask
         )
     {
         var subscriptions = new List<Subscription>();
 
-        subscriptionsTask.StartTask();
+        subscriptionsTask?.StartTask();
+
         if (settings.Subscription != Guid.Empty)
         {
             subscriptions.Add(await AzCommand.GetAzureSubscriptionAsync(settings.Subscription));
@@ -22,8 +23,10 @@ public static class SubscriptionHelpers
         {
             subscriptions.AddRange(await AzCommand.GetAzureSubscriptionsAsync());
         }
-        subscriptionsTask.Increment(100.0);
-        subscriptionsTask.StopTask();
+
+        subscriptionsTask?.Increment(100.0);
+        subscriptionsTask?.StopTask();
+
         return subscriptions;
     }
 
