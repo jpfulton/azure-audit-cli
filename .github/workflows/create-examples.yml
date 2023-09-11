@@ -42,7 +42,7 @@ jobs:
       - name: "Install Specific Version from GitHub"
         if: (inputs.use_version != null)
         run: |
-          dotnet tool install --global azure-audit-cli --add-source "github" --version ${{ inputs.use_version }}
+          dotnet tool install --global azure-audit-cli --add-source "https://nuget.pkg.github.com/jpfulton/index.json" --version ${{ inputs.use_version }}
 
       - name: "Install Latest azure-audit-cli Tool from MS Nuget"
         if: (inputs.use_version == null)
