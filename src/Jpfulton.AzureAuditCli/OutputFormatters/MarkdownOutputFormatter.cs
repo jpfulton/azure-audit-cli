@@ -108,17 +108,19 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
                             output.Append($"| **{resource.Name}** ");
                             output.Append("|\n");
 
+                            output.Append("<tr><td colspan=\"2\"><ul>");
+
                             resourceGroupData[resource]
                             .OrderByDescending(o => o.Level)
                             .ThenBy(o => o.Message)
                             .ToList()
                             .ForEach(ruleOutput =>
                             {
-                                output.Append("<td colspan=\"2\">");
-                                output.Append($"- [{Enum.GetName(ruleOutput.Level)}] ");
-                                output.Append($"{ruleOutput.Message} ");
-                                output.Append("</td>\n");
+                                output.Append($"<li>[{Enum.GetName(ruleOutput.Level)}] ");
+                                output.Append($"{ruleOutput.Message}</li>\n");
                             });
+
+                            output.Append("</td></tr>\n");
                         });
 
                         output.AppendLine();
