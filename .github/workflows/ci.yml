@@ -92,7 +92,7 @@ jobs:
 
   tag-release-and-publish:
     name: "Tag, Release and Publish"
-    needs: [compile]
+    needs: [compile, analyze]
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:

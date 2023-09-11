@@ -10,6 +10,7 @@ jobs:
     name: "Generate Examples"
     permissions:
       contents: write
+      packages: read
     uses: ./.github/workflows/create-examples.yml
     secrets:
       azure-sp-credentials: ${{ secrets.AZURE_SP_CREDENTIALS }}
