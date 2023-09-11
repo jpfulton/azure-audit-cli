@@ -6,9 +6,10 @@ using Spectre.Console.Cli;
 
 namespace Jpfulton.AzureAuditCli.Commands;
 
-public abstract class BaseRuleOutputCommand<TSettings, TResource> : AsyncCommand<TSettings>
-    where TSettings : ResourceSettings
-    where TResource : Resource
+public abstract class BaseRuleOutputCommand<TSettings, TResource>
+    : AsyncCommand<TSettings>, IRuleOutputCommand
+        where TSettings : ResourceSettings
+        where TResource : Resource
 {
     public override async Task<int> ExecuteAsync(
         CommandContext context,
