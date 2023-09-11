@@ -92,7 +92,7 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
                         output.AppendLine($"- Total rule findings: {totalFindings}");
                         output.AppendLine();
 
-                        output.AppendLine("<table width=\"100%\">");
+                        output.AppendLine("<table>");
 
                         output.AppendLine("<tr>");
                         output.AppendLine("<th>Resource Type</th>");
@@ -111,7 +111,7 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
                             output.AppendLine($"<td><strong>{resource.Name}</strong></td>");
                             output.AppendLine("</tr>");
 
-                            output.Append("<tr><td colspan=\"2\"><ul>");
+                            output.AppendLine("<tr>\n<td colspan=\"2\">\n<ul>");
 
                             resourceGroupData[resource]
                             .OrderByDescending(o => o.Level)
@@ -119,11 +119,11 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
                             .ToList()
                             .ForEach(ruleOutput =>
                             {
-                                output.Append($"<li>[{Enum.GetName(ruleOutput.Level)}] ");
+                                output.Append($"<li><strong>[{Enum.GetName(ruleOutput.Level)}]</strong> ");
                                 output.Append($"{ruleOutput.Message}</li>\n");
                             });
 
-                            output.AppendLine("</ul></td></tr>");
+                            output.AppendLine("</ul>\n</td>\n</tr>");
                         });
 
                         output.AppendLine("</table>");
