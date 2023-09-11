@@ -127,9 +127,14 @@ jobs:
           dotnet build --configuration Release /p:Version=$TAG_NAME /p:AssemblyVersion=$TAG_NAME /p:FileVersion=$TAG_NAME
           dotnet pack --configuration Release /p:PackageVersion=$TAG_NAME /p:Version=$TAG_NAME /p:AssemblyVersion=$TAG_NAME /p:FileVersion=$TAG_NAME --output nupkgs
 
-      - name: Push NuGet Package
+      - name: Push NuGet Package to MS Repository
         run: |
           dotnet nuget push ./nupkgs/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+
+      - name: Push NuGet Package to GitHub Repository
+        run: |
+          dotnet nuget add source --username jpfulton --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/jpfulton/index.json"
+          dotnet nuget push ./nupkgs/*.nupkg --api-key ${{ secrets.GH_PACKAGE_PUSH_PAT }} --source "github"
 
       - name: Archive Build Outputs
         run: |
@@ -145,6 +150,9 @@ jobs:
           body: ${{ steps.tag_version.outputs.changelog }}
           artifacts: "./src/*.tar.gz, ./src/*.zip, ./src/nupkgs/*.nupkg"
 
+    outputs:
+      new_version: ${{ steps.tag_version.outputs.new_version }}
+
   generate-examples:
     name: "Generate Examples"
     needs: [tag-release-and-publish]
@@ -152,5 +160,7 @@ jobs:
       contents: write
     if: github.event_name == 'push'
     uses: ./.github/workflows/create-examples.yml
+    with:
+      use_version: ${{ needs.tag-release-and-publish.outputs.new_version }}
     secrets:
       azure-sp-credentials: ${{ secrets.AZURE_SP_CREDENTIALS }}
