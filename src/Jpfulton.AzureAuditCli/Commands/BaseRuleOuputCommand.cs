@@ -35,35 +35,55 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource>
             AnsiConsole.WriteLine();
         }
 
-        await AnsiConsole.Progress()
-            .AutoRefresh(true) // Turn on auto refresh
-            .AutoClear(settings.Output != OutputFormat.Console)   // Do not remove the task list when done
-            .HideCompleted(false)   // Hide tasks as they are completed
-            .Columns(new ProgressColumn[]
-            {
+        if (settings.Output == OutputFormat.Console)
+        {
+            await AnsiConsole.Progress()
+                .AutoRefresh(true) // Turn on auto refresh
+                .AutoClear(false)   // Do not remove the task list when done
+                .HideCompleted(false)   // Do not hide tasks as they are completed
+                .Columns(new ProgressColumn[]
+                {
                 new SpinnerColumn(),            // Spinner
                 new TaskDescriptionColumn(),    // Task description
                 new ProgressBarColumn(),        // Progress bar
                 new PercentageColumn(),         // Percentage
                 new ElapsedTimeColumn(),        // Elapsed time
-            })
-            .StartAsync(async ctx =>
-            {
-                var subscriptionsTask = ctx.AddTask("[green]Getting subscriptions[/]", new ProgressTaskSettings { AutoStart = false });
-                var rgTask = ctx.AddTask("[green]Getting resources[/]", new ProgressTaskSettings { AutoStart = false });
-                var rulesTask = ctx.AddTask("[green]Evaluating rules[/]", new ProgressTaskSettings { AutoStart = false });
-
-                var subscriptions = await SubscriptionHelpers.GetSubscriptionsAsync(settings, subscriptionsTask);
-
-                var data = await GetResourceDataAsync(rgTask, subscriptions);
-
-                outputData = EvaluateRulesAndBuildOutputData(data, rulesTask);
-            }
-        );
+                })
+                .StartAsync(async ctx =>
+                {
+                    outputData = await GetOutputDataAsync(settings, ctx);
+                }
+            );
+        }
+        else
+        {
+            outputData = await GetOutputDataAsync(settings, null);
+        }
 
         await WriteOutput(settings, context, outputData);
 
         return 0;
+    }
+
+    private async
+        Task<
+            Dictionary<Subscription,
+                Dictionary<ResourceGroup,
+                    Dictionary<Resource, List<IRuleOutput>>
+                >
+            >
+        >
+        GetOutputDataAsync(TSettings settings, ProgressContext? ctx)
+    {
+        var subscriptionsTask = ctx?.AddTask("[green]Getting subscriptions[/]", new ProgressTaskSettings { AutoStart = false });
+        var rgTask = ctx?.AddTask("[green]Getting resources[/]", new ProgressTaskSettings { AutoStart = false });
+        var rulesTask = ctx?.AddTask("[green]Evaluating rules[/]", new ProgressTaskSettings { AutoStart = false });
+
+        var subscriptions = await SubscriptionHelpers.GetSubscriptionsAsync(settings, subscriptionsTask);
+        var data = await GetResourceDataAsync(rgTask, subscriptions);
+        var outputData = EvaluateRulesAndBuildOutputData(data, rulesTask);
+
+        return outputData;
     }
 
     public virtual async Task<Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>>>
@@ -90,13 +110,13 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource>
         >
     > EvaluateRulesAndBuildOutputData(
         Dictionary<Subscription, Dictionary<ResourceGroup, List<Resource>>> data,
-        ProgressTask progressTask
+        ProgressTask? progressTask
     )
     {
         var resourceCount = GetResourceCount(data);
         var progressIncrement = 100.0 / resourceCount;
 
-        progressTask.StartTask();
+        progressTask?.StartTask();
 
         var outputData = new Dictionary<
                     Subscription, Dictionary<
@@ -125,7 +145,7 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource>
                     IEnumerable<IRuleOutput> ruleOutputs = EvaluateRules(r);
                     resourceToRuleOutputs.Add(r, ruleOutputs.ToList());
 
-                    progressTask.Increment(progressIncrement * resourceCount);
+                    progressTask?.Increment(progressIncrement * resourceCount);
                 });
 
                 rgToResources.Add(rg, resourceToRuleOutputs);
@@ -134,7 +154,7 @@ public abstract class BaseRuleOutputCommand<TSettings, TResource>
             outputData.Add(sub, rgToResources);
         });
 
-        progressTask.StopTask();
+        progressTask?.StopTask();
         return outputData;
     }
 
