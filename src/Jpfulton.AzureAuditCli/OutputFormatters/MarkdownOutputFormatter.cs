@@ -92,10 +92,12 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
                         output.AppendLine($"- Total rule findings: {totalFindings}");
                         output.AppendLine();
 
-                        output.Append("| Resource Type ");
-                        output.Append("| Name ");
-                        output.Append("|\n");
-                        output.AppendLine("|---|---|");
+                        output.AppendLine("<table>");
+
+                        output.AppendLine("<tr>");
+                        output.AppendLine("<th>Resource Type</th>");
+                        output.AppendLine("<th>Name</th>");
+                        output.AppendLine("</tr>");
 
                         resourceGroupData.Keys
                         .Where(r => resourceGroupData[r].Count > 0)
@@ -104,9 +106,10 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
                         .ToList()
                         .ForEach(resource =>
                         {
-                            output.Append($"| *{resource.ResourceType}* ");
-                            output.Append($"| **{resource.Name}** ");
-                            output.Append("|\n");
+                            output.AppendLine("<tr>");
+                            output.AppendLine($"<td>*{resource.ResourceType}*</td>");
+                            output.AppendLine($"<td>**{resource.Name}**</td>");
+                            output.AppendLine("</tr>");
 
                             output.Append("<tr><td colspan=\"2\"><ul>");
 
@@ -120,9 +123,10 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
                                 output.Append($"{ruleOutput.Message}</li>\n");
                             });
 
-                            output.Append("</td></tr>\n");
+                            output.AppendLine("</ul></td></tr>");
                         });
 
+                        output.AppendLine("</table>");
                         output.AppendLine();
                     });
             });
