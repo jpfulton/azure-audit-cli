@@ -92,7 +92,7 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
                         output.AppendLine($"- Total rule findings: {totalFindings}");
                         output.AppendLine();
 
-                        output.AppendLine("<table>");
+                        output.AppendLine("<table width=\"100%\">");
 
                         output.AppendLine("<tr>");
                         output.AppendLine("<th>Resource Type</th>");
@@ -107,8 +107,8 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
                         .ForEach(resource =>
                         {
                             output.AppendLine("<tr>");
-                            output.AppendLine($"<td>*{resource.ResourceType}*</td>");
-                            output.AppendLine($"<td>**{resource.Name}**</td>");
+                            output.AppendLine($"<td><em>{resource.ResourceType}</em></td>");
+                            output.AppendLine($"<td><strong>{resource.Name}</strong></td>");
                             output.AppendLine("</tr>");
 
                             output.Append("<tr><td colspan=\"2\"><ul>");
