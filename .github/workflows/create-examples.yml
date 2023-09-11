@@ -1,0 +1,46 @@
+name: Create Examples
+
+on:
+  workflow_call:
+    secrets:
+      azure-sp-credentials:
+        required: true
+
+jobs:
+  examples:
+    name: Example Creation Job
+
+    permissions:
+      contents: write
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Checkout GitHub Action"
+        uses: actions/checkout@v3
+
+      - name: "Login via Azure CLI"
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.azure-sp-credentials }}
+
+      - name: "Setup DotNet Environment"
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.0.x
+
+      - name: "Install Latest azure-audit-cli Tool"
+        run: dotnet tool install --global azure-audit-cli
+
+      - name: "Run Audit CLI on All Resources"
+        run: azure-audit all --output Markdown > ./examples/all-resources.md
+
+      - name: "Configure Git"
+        run: |
+          git config user.name jpfulton
+          git config user.email jpatrick.fulton@gmail.com
+
+      - name: "Commit Command Outputs"
+        run: |
+          git add -A .
+          git commit -m "Generated examples [skip ci]"

@@ -144,3 +144,13 @@ jobs:
           name: Release ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
           artifacts: "./src/*.tar.gz, ./src/*.zip, ./src/nupkgs/*.nupkg"
+
+  generate-examples:
+    name: "Generate Examples"
+    needs: [tag-release-and-publish]
+    permissions:
+      contents: write
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/create-examples.yml
+    secrets:
+      azure-sp-credentials: ${{ secrets.AZURE_SP_CREDENTIALS }}

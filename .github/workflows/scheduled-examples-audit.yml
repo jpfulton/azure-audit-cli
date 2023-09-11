@@ -1,0 +1,15 @@
+name: "Scheduled Examples Generation"
+
+on:
+  schedule: # 06:00 CST == 11:00 UTC
+    - cron: "0 11 * * *"
+  workflow_dispatch:
+
+jobs:
+  generate-examples:
+    name: "Generate Examples"
+    permissions:
+      contents: write
+    uses: ./.github/workflows/create-examples.yml
+    secrets:
+      azure-sp-credentials: ${{ secrets.AZURE_SP_CREDENTIALS }}
