@@ -40,7 +40,8 @@ jobs:
           git config user.name jpfulton
           git config user.email jpatrick.fulton@gmail.com
 
-      - name: "Commit Command Outputs"
+      - name: "Commit and Push Command Outputs"
         run: |
           git add -A .
           git commit -m "Generated examples [skip ci]"
+          git push
