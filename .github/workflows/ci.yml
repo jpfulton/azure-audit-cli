@@ -162,6 +162,7 @@ jobs:
     needs: [tag-release-and-publish]
     permissions:
       contents: write
+      packages: read
     if: github.event_name == 'push'
     uses: ./.github/workflows/create-examples.yml
     with:
