@@ -14,7 +14,8 @@ public static class ResourceParser
         {AzureResourceType.ManagedDisk, typeof(ManagedDisk)},
         {AzureResourceType.NetworkInterfaceCard, typeof(NetworkInterfaceCard)},
         {AzureResourceType.NetworkSecurityGroup, typeof(NetworkSecurityGroup)},
-        {AzureResourceType.SecurityRule, typeof(SecurityRule)}
+        {AzureResourceType.SecurityRule, typeof(SecurityRule)},
+        {AzureResourceType.StorageAccount, typeof(StorageAccount)}
     };
 
     public static ResourceRef? ParseRef(JsonElement? element)
@@ -92,6 +93,9 @@ public static class ResourceParser
 
             case AzureResourceType.SecurityRule:
                 return ParseSecurityRule(resource, element);
+
+            case AzureResourceType.StorageAccount:
+                return ParseStorageAccount(resource, element);
 
             default:
                 return resource;
@@ -225,5 +229,56 @@ public static class ResourceParser
         }
 
         return disk;
+    }
+
+    private static StorageAccount ParseStorageAccount(Resource resource, JsonElement element)
+    {
+        var account = resource as StorageAccount ?? throw new ArgumentException("Resource is not of correct Type.", "resource");
+
+        if (
+            element.TryGetProperty("properties", out JsonElement propsElement) &&
+            propsElement.ValueKind != JsonValueKind.Null
+            )
+        {
+            account.AllowBlobPublicAccess = propsElement.GetBooleanPropertyValue("allowBlobPublicAccess") ?? false;
+            account.DefaultToOAuthAuthentication = propsElement.GetBooleanPropertyValue("defaultToOAuthAuthentication", false) ?? false;
+
+            if (propsElement.TryGetProperty("encryption", out var encryptionElement))
+            {
+                account.EncryptionKeySource = Enum.Parse<KeySource>(encryptionElement.GetStringPropertyValue("keySource").Replace(".", ""));
+
+                if (encryptionElement.TryGetProperty("services", out var servicesElement))
+                {
+                    if (servicesElement.TryGetProperty("blob", out var blobElement))
+                    {
+                        account.EncryptionServicesBlobEnabled = blobElement.GetBooleanPropertyValue("enabled") ?? false;
+                        account.EncryptionServicesBlobKeyType = Enum.Parse<KeyType>(blobElement.GetStringPropertyValue("keyType"));
+                    }
+
+                    if (servicesElement.TryGetProperty("file", out var fileElement))
+                    {
+                        account.EncryptionServicesFileEnabled = fileElement.GetBooleanPropertyValue("enabled") ?? false;
+                        account.EncryptionServicesFileKeyType = Enum.Parse<KeyType>(fileElement.GetStringPropertyValue("keyType"));
+                    }
+
+                    if (servicesElement.TryGetProperty("queue", out var queueElement))
+                    {
+                        account.EncryptionServicesQueueEnabled = queueElement.GetBooleanPropertyValue("enabled") ?? false;
+                        account.EncryptionServicesQueueKeyType = Enum.Parse<KeyType>(queueElement.GetStringPropertyValue("keyType"));
+                    }
+
+                    if (servicesElement.TryGetProperty("table", out var tableElement))
+                    {
+                        account.EncryptionServicesTableEnabled = tableElement.GetBooleanPropertyValue("enabled") ?? false;
+                        account.EncryptionServicesTableKeyType = Enum.Parse<KeyType>(tableElement.GetStringPropertyValue("keyType"));
+                    }
+                }
+
+                account.MinimumTlsVersion = Enum.Parse<TlsVersion>(propsElement.GetStringPropertyValue("minimumTlsVersion"));
+                account.SupportsHttpsTrafficOnly = propsElement.GetBooleanPropertyValue("supportsHttpsTrafficOnly") ?? false;
+            }
+        }
+
+        return account;
     }
 }

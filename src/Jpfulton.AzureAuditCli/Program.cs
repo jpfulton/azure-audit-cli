@@ -41,6 +41,9 @@ app.Configure(config =>
     config.AddCommand<SubscriptionsCommand>("subscriptions")
         .WithDescription("List subscriptions accessible with the current Azure CLI login.");
 
+    config.AddCommand<StorageAccountsCommand>("storageAccounts")
+        .WithDescription("Audit storage accounts in subscriptions accessible with the current Azure CLI login.");
+
     config.AddExample(
         "networking",
         "--output",
