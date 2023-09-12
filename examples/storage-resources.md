@@ -1,6 +1,6 @@
 # Audit Rule Outputs
 
-> Rendered on: Monday, September 11, 2023 10:43 PM <br/>
+> Rendered on: Tuesday, September 12, 2023 11:08 AM <br/>
 > Using command: azure-audit all <br/>
 > Version: 0.0.38.0 <br/>
 > Resource groups and resources without rule findings will be omitted.
@@ -9,7 +9,7 @@
 
 - Total resource groups: 11
 - Total evaluated resources: 17
-- Total rule findings: 38
+- Total rule findings: 39
 
 ### cloud-shell-storage-eastus
 
@@ -46,7 +46,7 @@
 - Location: northcentralus
 - Total evaluated resources: 14
 - Total resources with rule findings: 8
-- Total rule findings: 20
+- Total rule findings: 21
 
 <table>
 <tr>
@@ -143,6 +143,7 @@
 <td colspan="2">
 <ul>
 <li><strong>[Info]</strong> Storage account is accessible via 1 IP rule(s).</li>
+<li><strong>[Info]</strong> Storage account is accessible via 1 virtual network rule(s).</li>
 <li><strong>[Info]</strong> Storage account uses infrastructure encryption for double encryption.</li>
 <li><strong>[Note]</strong> Storage account Blob service is enabled.</li>
 <li><strong>[Note]</strong> Storage account Dfs service is enabled.</li>
