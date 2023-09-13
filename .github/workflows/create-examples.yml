@@ -44,6 +44,7 @@ jobs:
         run: dotnet tool install --global azure-audit-cli
 
       - name: "Upgrade Azure CLI"
+        continue-on-error: true
         run: az upgrade
 
       - name: "Login via Azure CLI"
@@ -55,12 +56,15 @@ jobs:
         run: az --version
 
       - name: "Run Audit CLI on All Resources"
+        continue-on-error: true
         run: azure-audit all --output Markdown > ./examples/all-resources.md
 
       - name: "Run Audit CLI on Networking Resources"
+        continue-on-error: true
         run: azure-audit all --output Markdown > ./examples/networking-resources.md
 
       - name: "Run Audit CLI on Storage Resources"
+        continue-on-error: true
         run: azure-audit all --output Markdown > ./examples/storage-resources.md
 
       - name: "Configure Git"
