@@ -1,6 +1,6 @@
 # Audit Rule Outputs
 
-> Rendered on: Tuesday, September 12, 2023 11:07 AM <br/>
+> Rendered on: Wednesday, September 13, 2023 11:07 AM <br/>
 > Using command: azure-audit all <br/>
 > Version: 0.0.38.0 <br/>
 > Resource groups and resources without rule findings will be omitted.
@@ -8,8 +8,8 @@
 ## JPF Pay-As-You-Go (4913be3f-a345-4652-9bba-767418dd25e3)
 
 - Total resource groups: 11
-- Total evaluated resources: 17
-- Total rule findings: 39
+- Total evaluated resources: 18
+- Total rule findings: 43
 
 ### cloud-shell-storage-eastus
 
@@ -44,9 +44,9 @@
 ### personal-network
 
 - Location: northcentralus
-- Total evaluated resources: 14
-- Total resources with rule findings: 8
-- Total rule findings: 21
+- Total evaluated resources: 15
+- Total resources with rule findings: 9
+- Total rule findings: 25
 
 <table>
 <tr>
@@ -132,6 +132,20 @@
 <td colspan="2">
 <ul>
 <li><strong>[Warn]</strong> Open and unfiltered UDP port(s): 1194 found.</li>
+</ul>
+</td>
+</tr>
+<tr>
+<td><em>Microsoft.Storage/storageAccounts</em></td>
+<td><strong>jpfbackupstorage</strong></td>
+</tr>
+<tr>
+<td colspan="2">
+<ul>
+<li><strong>[Warn]</strong> Storage account allows HTTP access in addition to HTTPS.</li>
+<li><strong>[Info]</strong> Storage account is accessible via 1 virtual network rule(s).</li>
+<li><strong>[Info]</strong> Storage account uses infrastructure encryption for double encryption.</li>
+<li><strong>[Note]</strong> Storage account File service is enabled.</li>
 </ul>
 </td>
 </tr>
