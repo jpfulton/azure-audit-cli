@@ -45,7 +45,7 @@ jobs:
 
       - name: "Upgrade Azure CLI"
         continue-on-error: true
-        run: az upgrade
+        run: az upgrade --yes
 
       - name: "Login via Azure CLI"
         uses: azure/login@v1
