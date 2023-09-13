@@ -43,6 +43,9 @@ jobs:
         if: (inputs.use_version == null)
         run: dotnet tool install --global azure-audit-cli
 
+      - name: "Upgrade Azure CLI"
+        run: az upgrade
+
       - name: "Login via Azure CLI"
         uses: azure/login@v1
         with:
