@@ -57,15 +57,21 @@ jobs:
 
       - name: "Run Audit CLI on All Resources"
         continue-on-error: true
-        run: azure-audit all --output Markdown > ./examples/all-resources.md
+        run: |
+          OUTPUT=$(azure-audit all --output Markdown)
+          if [ $? -eq 0 ]; then echo $OUTPUT > ./examples/all-resources.md; fi
 
       - name: "Run Audit CLI on Networking Resources"
         continue-on-error: true
-        run: azure-audit all --output Markdown > ./examples/networking-resources.md
+        run: |
+          OUTPUT=$(azure-audit networking --output Markdown)
+          if [ $? -eq 0 ]; then echo $OUTPUT > ./examples/networking-resources.md; fi
 
       - name: "Run Audit CLI on Storage Resources"
         continue-on-error: true
-        run: azure-audit all --output Markdown > ./examples/storage-resources.md
+        run: |
+          OUTPUT=$(azure-audit storage --output Markdown)
+          if [ $? -eq 0 ]; then echo $OUTPUT > ./examples/storage-resources.md; fi
 
       - name: "Configure Git"
         run: |
