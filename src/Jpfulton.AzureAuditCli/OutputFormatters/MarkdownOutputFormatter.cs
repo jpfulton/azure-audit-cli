@@ -119,13 +119,14 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
                             .ToList()
                             .ForEach(ruleOutput =>
                             {
-                                var color = GetLevelColor(ruleOutput.Level);
+                                var code = GetLevelEmojiShortCode(ruleOutput.Level);
 
                                 output.AppendLine("<li>");
-                                output.Append($"<strong>$${{\\color{{{color}}}");
+                                output.AppendLine(code);
+                                output.Append("<strong>");
                                 output.Append($"[{Enum.GetName(ruleOutput.Level)}]");
-                                output.Append("}$$</strong>\n");
-                                output.Append($"&nbsp;{ruleOutput.Message}");
+                                output.Append("</strong>\n");
+                                output.AppendLine(ruleOutput.Message);
                                 output.AppendLine("</li>");
                             });
 
@@ -141,29 +142,29 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
         Console.WriteLine(output);
     }
 
-    private static string GetLevelColor(Level level)
+    private static string GetLevelEmojiShortCode(Level level)
     {
-        string? color;
+        string? code;
         switch (level)
         {
             case Level.Critical:
-                color = "red";
+                code = ":red_circle:";
                 break;
             case Level.Warn:
-                color = "yellow";
+                code = ":yellow_circle:";
                 break;
             case Level.Info:
-                color = "blue";
+                code = ":large_blue_circle:";
                 break;
             case Level.Note:
-                color = "green";
+                code = ":green_circle:";
                 break;
             default:
-                color = "black";
+                code = string.Empty;
                 break;
         }
 
-        return color;
+        return code;
     }
 
     private static int GetSubscriptionResourceCount(
