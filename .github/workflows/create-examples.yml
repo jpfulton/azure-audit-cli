@@ -80,6 +80,7 @@ jobs:
 
       - name: "Commit and Push Command Outputs"
         run: |
+          git pull
           git add -A .
           git commit -m "Generated examples [skip ci]"
           git push
