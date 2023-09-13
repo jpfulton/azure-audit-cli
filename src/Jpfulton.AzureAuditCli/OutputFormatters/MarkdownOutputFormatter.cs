@@ -119,11 +119,12 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
                             .ToList()
                             .ForEach(ruleOutput =>
                             {
-                                var styleClause = GetLevelStyle(ruleOutput.Level);
+                                var color = GetLevelColor(ruleOutput.Level);
+
                                 output.AppendLine("<li>");
-                                output.AppendLine($"<strong{styleClause}>");
-                                output.AppendLine($"[{Enum.GetName(ruleOutput.Level)}]");
-                                output.AppendLine("</strong>");
+                                output.Append($"<strong>$${{\\color{{{color}}}");
+                                output.Append($"[{Enum.GetName(ruleOutput.Level)}]");
+                                output.Append("}$$</strong>\n");
                                 output.Append($"&nbsp;{ruleOutput.Message}");
                                 output.AppendLine("</li>");
                             });
@@ -140,9 +141,9 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
         Console.WriteLine(output);
     }
 
-    private static string GetLevelStyle(Level level)
+    private static string GetLevelColor(Level level)
     {
-        var color = string.Empty;
+        string? color;
         switch (level)
         {
             case Level.Critical:
@@ -155,13 +156,14 @@ public class MarkdownOutputFormatter : BaseOutputFormatter
                 color = "blue";
                 break;
             case Level.Note:
-                color = "lightGray";
+                color = "green";
                 break;
             default:
+                color = "black";
                 break;
         }
 
-        return string.IsNullOrEmpty(color) ? string.Empty : $" style=\"color: {color};\"";
+        return color;
     }
 
     private static int GetSubscriptionResourceCount(
