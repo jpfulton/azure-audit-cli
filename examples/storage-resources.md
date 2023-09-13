@@ -1,8 +1,8 @@
 # Audit Rule Outputs
 
-> Rendered on: Wednesday, September 13, 2023 4:43 PM <br/>
+> Rendered on: Wednesday, September 13, 2023 5:39 PM <br/>
 > Using command: azure-audit all <br/>
-> Version: 0.0.41.0 <br/>
+> Version: 0.0.42.0 <br/>
 > Resource groups and resources without rule findings will be omitted.
 
 ## JPF Pay-As-You-Go (4913be3f-a345-4652-9bba-767418dd25e3)
