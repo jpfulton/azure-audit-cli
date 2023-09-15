@@ -1,22 +1,22 @@
 # Audit Rule Outputs
 
-> Rendered on: Thursday, September 14, 2023 11:07 AM <br/>
+> Rendered on: Friday, September 15, 2023 7:04 PM <br/>
 > Using command: azure-audit networking <br/>
-> Version: 0.0.44.0 <br/>
+> Version: 0.0.45.0 <br/>
 > Resource groups and resources without rule findings will be omitted.
 
 ## JPF Pay-As-You-Go (4913be3f-a345-4652-9bba-767418dd25e3)
 
 - Total resource groups: 11
-- Total evaluated resources: 10
-- Total rule findings: 2
+- Total evaluated resources: 8
+- Total rule findings: 1
 
 ### personal-network
 
 - Location: northcentralus
-- Total evaluated resources: 10
-- Total resources with rule findings: 2
-- Total rule findings: 2
+- Total evaluated resources: 8
+- Total resources with rule findings: 1
+- Total rule findings: 1
 
 <table>
 <tr>
@@ -24,23 +24,8 @@
 <th>Name</th>
 </tr>
 <tr>
-<td><em>Microsoft.Network/networkInterfaces</em></td>
-<td><strong>ubuntu-vpn-server-spot105</strong></td>
-</tr>
-<tr>
-<td colspan="2">
-<ul>
-<li>
-:green_circle:
-<strong>[Note]</strong>
-Accelerated networking is not available or not enabled.
-</li>
-</ul>
-</td>
-</tr>
-<tr>
 <td><em>Microsoft.Network/networkSecurityGroups</em></td>
-<td><strong>ubuntu-vpn-server-spot-nsg</strong></td>
+<td><strong>vpn-server-nsg</strong></td>
 </tr>
 <tr>
 <td colspan="2">
@@ -48,7 +33,7 @@ Accelerated networking is not available or not enabled.
 <li>
 :yellow_circle:
 <strong>[Warn]</strong>
-Open and unfiltered UDP port(s): 1194 found.
+Open and unfiltered Udp port(s): 1194 found.
 </li>
 </ul>
 </td>
