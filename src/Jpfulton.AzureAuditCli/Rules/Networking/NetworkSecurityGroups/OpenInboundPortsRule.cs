@@ -50,8 +50,8 @@ public class OpenInboundPortsRule : IRule<NetworkSecurityGroup>
 
                 Level level =
                 (
-                    (rule.Protocol == Protocol.TCP && destinationPorts.Intersect(DISALLOWED_TCP_PORTS).Count() > 0) ||
-                    (rule.Protocol == Protocol.UDP && destinationPorts.Intersect(DISALLOWED_UDP_PORTS).Count() > 0)
+                    (rule.Protocol == Protocol.Tcp && destinationPorts.Intersect(DISALLOWED_TCP_PORTS).Count() > 0) ||
+                    (rule.Protocol == Protocol.Udp && destinationPorts.Intersect(DISALLOWED_UDP_PORTS).Count() > 0)
                 ) ? Level.Critical : Level.Warn;
 
                 var protocol = Enum.GetName(rule.Protocol);

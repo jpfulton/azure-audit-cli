@@ -16,8 +16,8 @@ public enum Protocol
 {
     Any,
     ICMP,
-    TCP,
-    UDP
+    Tcp,
+    Udp
 }
 
 public class SecurityRule : Resource
