@@ -1,15 +1,15 @@
 # Audit Rule Outputs
 
-> Rendered on: Friday, September 15, 2023 11:07 AM <br/>
+> Rendered on: Saturday, September 16, 2023 2:34 AM <br/>
 > Using command: azure-audit storage <br/>
-> Version: 0.0.44.0 <br/>
+> Version: 0.0.47.0 <br/>
 > Resource groups and resources without rule findings will be omitted.
 
 ## JPF Pay-As-You-Go (4913be3f-a345-4652-9bba-767418dd25e3)
 
 - Total resource groups: 11
-- Total evaluated resources: 11
-- Total rule findings: 40
+- Total evaluated resources: 9
+- Total rule findings: 38
 
 ### cloud-shell-storage-eastus
 
@@ -68,9 +68,9 @@ Storage account Web service is enabled.
 ### personal-network
 
 - Location: northcentralus
-- Total evaluated resources: 8
-- Total resources with rule findings: 8
-- Total rule findings: 22
+- Total evaluated resources: 6
+- Total resources with rule findings: 6
+- Total rule findings: 20
 
 <table>
 <tr>
@@ -84,6 +84,11 @@ Storage account Web service is enabled.
 <tr>
 <td colspan="2">
 <ul>
+<li>
+:yellow_circle:
+<strong>[Warn]</strong>
+Managed disk is not attached to a virtual machine.
+</li>
 <li>
 :green_circle:
 <strong>[Note]</strong>
@@ -133,41 +138,6 @@ Managed disk is encrypted at rest using EncryptionAtRestWithPlatformKey.
 :green_circle:
 <strong>[Note]</strong>
 Managed disk is reserved. Its managing virtual machine is currently deallocated.
-</li>
-</ul>
-</td>
-</tr>
-<tr>
-<td><em>Microsoft.Compute/disks</em></td>
-<td><strong>ubuntu-backup-server-spot_OsDisk_1_82ad58ea1b864609a678571faedee9b3</strong></td>
-</tr>
-<tr>
-<td colspan="2">
-<ul>
-<li>
-:yellow_circle:
-<strong>[Warn]</strong>
-Managed disk is configured for public network access and an allow all network access policy with no data access authorization policy. It may be enabled for export at anytime.
-</li>
-<li>
-:green_circle:
-<strong>[Note]</strong>
-Managed disk is encrypted at rest using EncryptionAtRestWithPlatformKey.
-</li>
-</ul>
-</td>
-</tr>
-<tr>
-<td><em>Microsoft.Compute/disks</em></td>
-<td><strong>ubuntu-vpn-server-spot_OsDisk</strong></td>
-</tr>
-<tr>
-<td colspan="2">
-<ul>
-<li>
-:green_circle:
-<strong>[Note]</strong>
-Managed disk is encrypted at rest using EncryptionAtRestWithPlatformKey.
 </li>
 </ul>
 </td>
