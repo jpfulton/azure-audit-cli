@@ -208,7 +208,7 @@ public static class ResourceParser
     {
         var disk = resource as ManagedDisk ?? throw new ArgumentException("Resource is not of correct Type.", "resource");
 
-        disk.ManagedBy = element.GetStringPropertyValue("managedBy");
+        disk.ManagedBy = element.GetStringPropertyValue("managedBy", false);
 
         if (
             element.TryGetProperty("properties", out JsonElement propsElement) &&
