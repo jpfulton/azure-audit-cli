@@ -20,7 +20,10 @@ public static class JsonExtensions
             }
             else
             {
-                throw new Exception($"Value of '{propertyName}' property is null.");
+                if (required)
+                    throw new Exception($"Value of '{propertyName}' property is null.");
+                else
+                    return string.Empty;
             }
         }
         else
