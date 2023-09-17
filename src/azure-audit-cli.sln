@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jpfulton.AzureAuditCli", "Jpfulton.AzureAuditCli\Jpfulton.AzureAuditCli.csproj", "{B11682CB-3087-4991-B963-D51CB9A22F95}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureAuditCli", "azure-audit-cli.csproj", "{B11682CB-3087-4991-B963-D51CB9A22F95}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
