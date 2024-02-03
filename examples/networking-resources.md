@@ -1,6 +1,6 @@
 # Audit Rule Outputs
 
-> Rendered on: Friday, February 2, 2024 11:14 AM <br/>
+> Rendered on: Saturday, February 3, 2024 11:13 AM <br/>
 > Using command: azure-audit networking <br/>
 > Version: 0.0.48.0 <br/>
 > Resource groups and resources without rule findings will be omitted.
