@@ -1,15 +1,15 @@
 # Audit Rule Outputs
 
-> Rendered on: Sunday, March 10, 2024 11:06 AM <br/>
+> Rendered on: Monday, March 11, 2024 11:06 AM <br/>
 > Using command: azure-audit storage <br/>
 > Version: 0.0.48.0 <br/>
 > Resource groups and resources without rule findings will be omitted.
 
 ## JPF Pay-As-You-Go (4913be3f-a345-4652-9bba-767418dd25e3)
 
-- Total resource groups: 11
-- Total evaluated resources: 6
-- Total rule findings: 23
+- Total resource groups: 10
+- Total evaluated resources: 3
+- Total rule findings: 18
 
 ### cloud-shell-storage-eastus
 
@@ -59,75 +59,6 @@ Storage account Table service is enabled.
 :green_circle:
 <strong>[Note]</strong>
 Storage account Web service is enabled.
-</li>
-</ul>
-</td>
-</tr>
-</table>
-
-### personal-network
-
-- Location: northcentralus
-- Total evaluated resources: 3
-- Total resources with rule findings: 3
-- Total rule findings: 5
-
-<table>
-<tr>
-<th>Resource Type</th>
-<th>Name</th>
-</tr>
-<tr>
-<td><em>Microsoft.Compute/disks</em></td>
-<td><strong>backup-server_OsDisk</strong></td>
-</tr>
-<tr>
-<td colspan="2">
-<ul>
-<li>
-:yellow_circle:
-<strong>[Warn]</strong>
-Managed disk is configured for public network access and an allow all network access policy with no data access authorization policy. It may be enabled for export at anytime.
-</li>
-<li>
-:green_circle:
-<strong>[Note]</strong>
-Managed disk is encrypted at rest using EncryptionAtRestWithPlatformKey.
-</li>
-</ul>
-</td>
-</tr>
-<tr>
-<td><em>Microsoft.Compute/disks</em></td>
-<td><strong>backup-server-data-disk</strong></td>
-</tr>
-<tr>
-<td colspan="2">
-<ul>
-<li>
-:green_circle:
-<strong>[Note]</strong>
-Managed disk is encrypted at rest using EncryptionAtRestWithPlatformKey.
-</li>
-</ul>
-</td>
-</tr>
-<tr>
-<td><em>Microsoft.Compute/disks</em></td>
-<td><strong>vpn-server_OsDisk</strong></td>
-</tr>
-<tr>
-<td colspan="2">
-<ul>
-<li>
-:yellow_circle:
-<strong>[Warn]</strong>
-Managed disk is configured for public network access and an allow all network access policy with no data access authorization policy. It may be enabled for export at anytime.
-</li>
-<li>
-:green_circle:
-<strong>[Note]</strong>
-Managed disk is encrypted at rest using EncryptionAtRestWithPlatformKey.
 </li>
 </ul>
 </td>
