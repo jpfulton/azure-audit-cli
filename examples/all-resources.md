@@ -1,6 +1,6 @@
 # Audit Rule Outputs
 
-> Rendered on: Thursday, April 18, 2024 11:06 AM <br/>
+> Rendered on: Friday, April 19, 2024 11:05 AM <br/>
 > Using command: azure-audit all <br/>
 > Version: 0.0.48.0 <br/>
 > Resource groups and resources without rule findings will be omitted.
