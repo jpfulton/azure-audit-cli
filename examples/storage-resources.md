@@ -1,6 +1,6 @@
 # Audit Rule Outputs
 
-> Rendered on: Monday, June 3, 2024 11:06 AM <br/>
+> Rendered on: Tuesday, June 4, 2024 11:07 AM <br/>
 > Using command: azure-audit storage <br/>
 > Version: 0.0.48.0 <br/>
 > Resource groups and resources without rule findings will be omitted.
